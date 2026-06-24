@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Korean Culture × p5.js — Curriculum + AI Prompt Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;600&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+html{font-size:18px;}
+:root{
+  --red:#C0392B;--blue:#1A5276;--blue2:#1A4A7A;
+  --green:#1E8449;--green2:#1A6B3A;
+  --yellow:#D4AC0D;--yellow2:#C89B10;
+  --purple:#6B3AAA;--brown:#8B4400;
+  --bg:#0D0D0D;--surface:#1C1C1C;--surface2:#242424;
+  --text:#F5F0E8;--dim:#AAAAAA;--border:#303030;
+  --paper:#FAF6EE;--ink:#1A1A1A;--pborder:#D8D0C0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ──────────────────────────────────── */
+header{
+  padding:.95rem 2rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:1.1rem;
+  position:sticky;top:0;background:rgba(13,13,13,.97);
+  backdrop-filter:blur(14px);z-index:200;
+}
+.logo{font-family:'Noto Serif KR',serif;font-size:1.5rem;color:var(--red);flex-shrink:0;}
+.htext{display:flex;flex-direction:column;gap:.08rem;}
+.htitle{font-family:'Space Mono',monospace;font-size:.77rem;font-weight:700;letter-spacing:.04em;}
+.hsub{font-size:.66rem;color:var(--dim);}
+.hpills{margin-left:auto;display:flex;gap:.38rem;flex-wrap:wrap;}
+.hpill{
+  padding:.22rem .75rem;border-radius:999px;font-size:.64rem;font-weight:700;
+  letter-spacing:.05em;cursor:pointer;border:none;transition:all .17s;
+}
+.hpill.p1{background:rgba(192,57,43,.15);color:#e74c3c;}
+.hpill.p2{background:rgba(26,82,118,.15);color:#5dade2;}
+.hpill.p3{background:rgba(30,132,73,.15);color:#2ecc71;}
+.hpill.pg{background:rgba(107,58,170,.15);color:#b07fd4;}
+.hpill:hover{transform:scale(1.06);filter:brightness(1.2);}
+
+/* ── LAYOUT ──────────────────────────────────── */
+.wrap{display:grid;grid-template-columns:256px 1fr;min-height:calc(100vh - 58px);}
+aside{
+  border-right:1px solid var(--border);padding:.8rem 0;
+  position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;
+}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sb-lbl{padding:.48rem 1.15rem .18rem;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:.3rem;}
+.sb-div{height:1px;background:var(--border);margin:.5rem 1.1rem;}
+.lbtn{
+  width:100%;padding:.55rem 1.15rem;background:none;border:none;color:var(--dim);
+  text-align:left;cursor:pointer;display:flex;align-items:center;gap:.55rem;
+  font-size:.77rem;font-family:'DM Sans',sans-serif;transition:all .12s;
+  border-left:2px solid transparent;
+}
+.lbtn:hover{background:var(--surface);color:var(--text);border-left-color:var(--border);}
+.lbtn.active{background:var(--surface2);color:var(--text);border-left-color:var(--red);}
+.lbtn.gactive{background:var(--surface2);color:var(--text);border-left-color:var(--purple);}
+.lnum{
+  font-family:'Space Mono',monospace;font-size:.64rem;font-weight:700;
+  width:20px;height:20px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;
+}
+.p1 .lnum{background:rgba(192,57,43,.2);color:#e74c3c;}
+.p2 .lnum{background:rgba(26,82,118,.2);color:#5dade2;}
+.p3 .lnum{background:rgba(30,132,73,.2);color:#2ecc71;}
+.pg .lnum{background:rgba(107,58,170,.2);color:#b07fd4;}
+
+/* ── MAIN ────────────────────────────────────── */
+main{padding:1.8rem 2.4rem;max-width:940px;}
+
+/* ── LESSON PANEL ────────────────────────────── */
+.lpanel{display:none;}
+.lpanel.active{display:block;}
+.lhdr{margin-bottom:1.4rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border);}
+.lmeta{display:flex;align-items:center;gap:.55rem;margin-bottom:.45rem;flex-wrap:wrap;}
+.badge{font-family:'Space Mono',monospace;font-size:.63rem;font-weight:700;padding:.15rem .48rem;border-radius:4px;}
+.ltitle{font-size:1.5rem;font-weight:700;margin-bottom:.25rem;line-height:1.25;}
+.lsub{color:var(--dim);font-size:.83rem;line-height:1.5;margin-bottom:.55rem;}
+.tags{display:flex;flex-wrap:wrap;gap:.32rem;}
+.tag{font-size:.62rem;padding:.13rem .42rem;border-radius:3px;font-family:'Space Mono',monospace;background:var(--surface2);color:var(--dim);border:1px solid var(--border);}
+
+/* 4 STEPS */
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.4rem;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.95rem;}
+.slbl{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.34rem;display:flex;align-items:center;gap:.28rem;}
+.scard h4{font-size:.79rem;font-weight:600;margin-bottom:.28rem;line-height:1.3;}
+.scard p{font-size:.8rem;color:#BBBBBB;line-height:1.62;}
+.scard p code{font-family:'Space Mono',monospace;font-size:.68rem;background:var(--surface2);padding:.02rem .24rem;border-radius:3px;color:#89b4fa;}
+.scard.concept{border-top:2px solid #3498db;} .scard.concept .slbl{color:#3498db;}
+.scard.culture{border-top:2px solid var(--yellow);} .scard.culture .slbl{color:var(--yellow);}
+.scard.practice{border-top:2px solid var(--green);} .scard.practice .slbl{color:#2ecc71;}
+.scard.ai{border-top:2px solid var(--purple);} .scard.ai .slbl{color:#b07fd4;}
+
+/* STITLE */
+.stitle{font-family:'Space Mono',monospace;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem;}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* CODE BLOCK */
+.codesec{margin-bottom:1.4rem;}
+.codeblk{background:#060606;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.codehdr{display:flex;align-items:center;justify-content:space-between;padding:.55rem .88rem;border-bottom:1px solid var(--border);background:var(--surface);}
+.fname{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--dim);}
+.cbtn{font-family:'Space Mono',monospace;font-size:.58rem;padding:.2rem .56rem;background:var(--surface2);border:1px solid var(--border);color:var(--dim);border-radius:4px;cursor:pointer;transition:all .16s;}
+.cbtn:hover{color:var(--text);border-color:#444;}
+.cbtn.ok{color:#2ecc71;border-color:#2ecc71;}
+pre{padding:1rem 1.25rem;overflow-x:auto;font-family:'Space Mono',monospace;font-size:.76rem;line-height:1.72;color:#cdd6f4;}
+.kw{color:#cba6f7;}.fn{color:#89b4fa;}.str{color:#a6e3a1;}
+.num{color:#fab387;}.cmt{color:#6A6D85;font-style:italic;}.var{color:#f5c2e7;}
+
+/* PREVIEW */
+.prevsec{margin-bottom:1.4rem;}
+.prevbox{background:#060606;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.prevhdr{display:flex;align-items:center;justify-content:space-between;padding:.55rem .88rem;border-bottom:1px solid var(--border);background:var(--surface);}
+.prevlbl{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--dim);}
+.runbtn{font-family:'Space Mono',monospace;font-size:.63rem;padding:.25rem .82rem;background:var(--red);border:none;color:#fff;border-radius:4px;cursor:pointer;font-weight:700;transition:all .17s;}
+.runbtn:hover{background:#e74c3c;transform:scale(1.02);}
+.prevcvs{display:flex;align-items:center;justify-content:center;padding:1.4rem;min-height:265px;}
+#p5c canvas{border-radius:4px;}
+
+/* AI BOX */
+.aibox{background:rgba(107,58,170,.07);border:1px solid rgba(107,58,170,.24);border-radius:8px;padding:.9rem 1.05rem;margin-bottom:1.4rem;}
+.ailbl{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:.45rem;display:flex;align-items:center;gap:.32rem;}
+.aiprompt{font-family:'Space Mono',monospace;font-size:.77rem;color:#d7bdf7;line-height:1.65;font-style:italic;margin-bottom:.6rem;padding-bottom:.6rem;border-bottom:1px solid rgba(107,58,170,.17);}
+.aitask{font-size:.78rem;color:#BBBBBB;line-height:1.5;}
+.aitask strong{color:#b07fd4;}
+
+/* NAV */
+.lnav{display:flex;gap:.65rem;padding-top:1.4rem;border-top:1px solid var(--border);}
+.nbtn{padding:.48rem 1.25rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .14s;}
+.nbtn:hover{background:var(--surface2);}
+.nbtn.primary{background:var(--red);border-color:var(--red);color:#fff;}
+.nbtn.primary:hover{background:#e74c3c;}
+.nbtn:disabled{opacity:.22;cursor:not-allowed;}
+
+/* ── GUIDE PANEL ─────────────────────────────── */
+.gpanel{display:none;}
+.gpanel.active{display:block;}
+
+/* Guide header */
+.ghdr{margin-bottom:1.4rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border);}
+.gtitle{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.1em;line-height:1;margin-bottom:.2rem;}
+.gtitle span{color:var(--purple);}
+.gsub-txt{font-size:.8rem;color:var(--dim);line-height:1.5;}
+
+/* Guide inner tabs */
+.gtab-row{display:flex;gap:.38rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+.gtab{
+  font-family:'IBM Plex Mono',monospace;font-size:.63rem;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:.3rem .85rem;
+  border-radius:3px;cursor:pointer;border:1.5px solid var(--border);
+  background:var(--surface);color:var(--dim);transition:all .15s;
+}
+.gtab:hover{color:var(--text);border-color:#444;}
+.gtab.g0{background:#3498db;border-color:#3498db;color:#fff;}
+.gtab.ga{background:var(--red);border-color:var(--red);color:#fff;}
+.gtab.gb{background:var(--blue2);border-color:var(--blue2);color:#fff;}
+.gtab.gc{background:var(--green2);border-color:var(--green2);color:#fff;}
+.gtab.gd{background:var(--purple);border-color:var(--purple);color:#fff;}
+.gtab.ge{background:var(--brown);border-color:var(--brown);color:#fff;}
+
+/* Guide sections */
+.gsec{display:none;}
+.gsec.show{display:block;}
+
+/* Guide grids */
+.gg{display:grid;gap:.95rem;}
+.gg2{grid-template-columns:repeat(2,1fr);}
+.gg3{grid-template-columns:repeat(3,1fr);}
+.gg4{grid-template-columns:repeat(4,1fr);}
+.gfull{grid-column:1/-1;}
+
+/* Guide card */
+.gcard{
+  background:var(--paper);border:1.5px solid var(--pborder);border-radius:3px;
+  padding:1.1rem;position:relative;overflow:hidden;
+  transition:transform .14s,box-shadow .14s;
+}
+.gcard:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(0,0,0,.13);}
+.gacc{position:absolute;top:0;left:0;width:100%;height:3px;}
+.gnum{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;line-height:1;opacity:.07;position:absolute;top:.45rem;right:.75rem;color:var(--ink);}
+.gtag-lbl{font-family:'IBM Plex Mono',monospace;font-size:.57rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.42rem;display:flex;align-items:center;gap:.28rem;color:var(--ink);}
+.gdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.gcard h3{font-size:.88rem;font-weight:600;margin-bottom:.38rem;line-height:1.3;color:var(--ink);}
+.gcard p{font-size:.73rem;line-height:1.58;color:#444;margin-bottom:.55rem;}
+
+/* Guide prompt box */
+.gpbox{background:#0F0F0F;border-radius:2px;padding:.7rem .85rem;margin:.45rem 0;position:relative;}
+.gplbl{font-family:'IBM Plex Mono',monospace;font-size:.54rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:.25rem;}
+.gptext{font-family:'IBM Plex Mono',monospace;font-size:.69rem;color:#A8E6A3;line-height:1.65;}
+.gptext em{color:#FFD97D;font-style:normal;}
+.gptext strong{color:#87CEEB;font-weight:600;}
+.gcopy{position:absolute;top:.45rem;right:.45rem;font-family:'IBM Plex Mono',monospace;font-size:.52rem;padding:.16rem .42rem;background:#1A1A1A;border:1px solid #2A2A2A;color:#666;border-radius:2px;cursor:pointer;transition:all .13s;}
+.gcopy:hover{color:#A8E6A3;border-color:#A8E6A3;}
+.gcopy.ok{color:#A8E6A3;border-color:#A8E6A3;}
+
+/* Guide rules */
+.grule{display:flex;align-items:flex-start;gap:.44rem;margin-bottom:.34rem;}
+.gri{font-size:.7rem;width:17px;flex-shrink:0;margin-top:.04rem;}
+.grt{font-size:.72rem;color:#333;line-height:1.5;}
+.grt code{font-family:'IBM Plex Mono',monospace;font-size:.66rem;background:#EEE8DC;padding:.02rem .24rem;border-radius:2px;color:#C0392B;}
+
+/* Guide checklist */
+.gcl{list-style:none;}
+.gcl li{display:flex;align-items:flex-start;gap:.4rem;font-size:.73rem;color:#333;line-height:1.5;padding:.24rem 0;border-bottom:1px solid #EEE8DC;}
+.gcl li:last-child{border-bottom:none;}
+.gck{width:13px;height:13px;border:1.5px solid var(--pborder);border-radius:2px;flex-shrink:0;margin-top:.13rem;}
+
+/* Guide table */
+.gtbl{width:100%;border-collapse:collapse;font-size:.71rem;margin-top:.38rem;}
+.gtbl th{font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:.32rem .52rem;text-align:left;border-bottom:1.5px solid var(--pborder);color:var(--ink);}
+.gtbl td{padding:.35rem .52rem;border-bottom:1px solid #EEE8DC;vertical-align:top;line-height:1.5;color:#333;}
+.gtbl tr:last-child td{border-bottom:none;}
+.tbad{color:#B03020;}.tgood{color:#1A6B3A;}
+
+/* Guide pill */
+.gpill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.57rem;padding:.09rem .38rem;border-radius:2px;margin:.05rem;background:#EEE8DC;color:#555;}
+
+/* Level badge */
+.glvl{display:inline-flex;align-items:center;gap:.25rem;font-family:'IBM Plex Mono',monospace;font-size:.54rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.13rem .42rem;border-radius:2px;margin-bottom:.45rem;}
+
+/* Guide scaffold */
+.gscaf{background:#0A0A0A;border-radius:3px;padding:.8rem 1.05rem;font-family:'IBM Plex Mono',monospace;font-size:.69rem;color:#cdd6f4;line-height:1.72;margin:.45rem 0;}
+.gscaf .sk{color:#cba6f7;}.gscaf .sv{color:#f5c2e7;}.gscaf .sc{color:#6A6D85;font-style:italic;}
+
+/* Guide intro */
+.gintro{background:var(--paper);border:1.5px solid var(--pborder);border-left:4px solid var(--purple);border-radius:2px;padding:.8rem 1.05rem;margin-bottom:1.1rem;font-size:.77rem;line-height:1.6;color:#333;}
+.gintro strong{color:var(--ink);}
+
+/* Guide hr */
+.ghr{border:none;border-top:1.5px solid var(--pborder);margin:.75rem 0;}
+
+/* Cycle */
+.cycle{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;margin:.8rem 0 .35rem;}
+.cstep{display:flex;flex-direction:column;align-items:center;gap:.22rem;}
+.ccirc{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
+.clbl{font-family:'IBM Plex Mono',monospace;font-size:.54rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;color:#888;}
+.carr{font-size:1rem;color:var(--pborder);margin:0 .12rem;align-self:center;padding-bottom:1.2rem;}
+
+/* ── REALWORLD SECTION (L1 only) ─────────────── */
+.rwsec{margin-bottom:1.5rem;}
+.rw-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem;margin-top:.65rem;}
+.rw-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;padding:.9rem .85rem;position:relative;overflow:hidden;
+}
+.rw-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.rw-card:nth-child(1)::before{background:#C0392B;}
+.rw-card:nth-child(2)::before{background:#1A5276;}
+.rw-card:nth-child(3)::before{background:#1E8449;}
+.rw-card:nth-child(4)::before{background:#D4AC0D;}
+.rw-card:nth-child(5)::before{background:#6B3AAA;}
+.rw-icon{font-size:1.5rem;margin-bottom:.45rem;display:block;}
+.rw-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:.35rem;line-height:1.3;}
+.rw-steps{list-style:none;padding:0;}
+.rw-steps li{font-size:.74rem;color:#BBBBBB;line-height:1.58;padding:.08rem 0;display:flex;gap:.35rem;}
+.rw-steps li::before{content:'→';color:#444;flex-shrink:0;}
+.rw-question{
+  margin-top:.55rem;padding:.38rem .55rem;
+  background:rgba(255,255,255,.04);border-radius:4px;
+  font-size:.68rem;color:#b07fd4;font-style:italic;line-height:1.45;
+}
+
+/* ── LANGUAGE HISTORY TIMELINE (Guide ⓪) ──────── */
+.lang-intro{
+  background:var(--paper);border:1.5px solid var(--pborder);
+  border-left:4px solid #3498db;border-radius:3px;
+  padding:.8rem 1.05rem;margin-bottom:1.1rem;
+  font-size:.77rem;line-height:1.6;color:#333;
+}
+.lang-intro strong{color:var(--ink);}
+.lang-timeline{
+  position:relative;padding:1.2rem 1rem;margin-bottom:1.1rem;
+  background:var(--paper);border:1.5px solid var(--pborder);border-radius:6px;
+}
+.lang-spine{
+  position:absolute;left:50%;top:0;bottom:0;width:2px;
+  background:var(--pborder);transform:translateX(-50%);
+}
+.lang-era{
+  display:grid;grid-template-columns:1fr 52px 1fr;
+  align-items:center;gap:0;margin-bottom:.85rem;
+}
+.lang-left{text-align:right;padding-right:1.1rem;}
+.lang-right{padding-left:1.1rem;}
+.lang-node{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;border:2px solid var(--pborder);
+  background:var(--paper);position:relative;z-index:1;
+}
+.lang-year{
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;margin-bottom:.2rem;color:#777;
+}
+.lang-name{font-size:.83rem;font-weight:700;color:var(--ink);margin-bottom:.18rem;line-height:1.25;}
+.lang-langs{
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;
+  padding:.12rem .38rem;border-radius:3px;display:inline-block;margin-bottom:.22rem;
+}
+.lang-desc{font-size:.72rem;color:#555;line-height:1.5;}
+.lang-arrow{
+  text-align:center;font-size:1.2rem;color:var(--pborder);
+  margin-bottom:.3rem;display:block;
+}
+.lang-code{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+  background:#1C1C1C;border-radius:4px;border:1px solid #333;
+  padding:.55rem .8rem;line-height:1.8;
+}
+.lang-code .lc-cmt{color:#8A8DA8;}
+.lang-now{
+  background:#EEE8DC;border:1.5px solid #C8BDB0;border-left:4px solid #6B3AAA;
+  border-radius:6px;padding:1rem 1.2rem;margin-top:.3rem;text-align:center;
+}
+.lang-now-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:#5B2D8E;margin-bottom:.35rem;
+}
+.lang-now-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;}
+.lang-now-desc{font-size:.78rem;color:#444;line-height:1.6;max-width:520px;margin:0 auto .65rem;}
+.lang-now-example{
+  font-family:'IBM Plex Mono',monospace;font-size:.73rem;
+  color:#1A6B3A;background:#F0F7F0;border:1px solid #C0DCC0;border-radius:4px;
+  padding:.55rem .8rem;display:inline-block;font-style:italic;
+}
+
+/* ── SCROLLBAR ───────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:#1e1e1e;border-radius:3px;}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:860px){
+  .wrap{grid-template-columns:1fr;}
+  aside{display:none;}
+  main{padding:1.1rem;}
+  .steps,.gg2,.gg3,.gg4,.rw-grid{grid-template-columns:1fr;}
+}
+@media(max-width:560px){header{padding:.75rem 1rem;}.hpills{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header>
+  <div class="logo" id="h-logo">단청</div>
+  <div class="htext">
+    <div class="htitle" id="h-title">Korean Culture × p5.js</div>
+    <div class="hsub" id="h-sub">12-Hour Curriculum · Concept → Culture → Practice → AI</div>
+  </div>
+  <div class="hpills">
+    <button class="hpill p1" onclick="jumpPhase(0)">Phase 1 · Dancheong</button>
+    <button class="hpill p2" onclick="jumpPhase(4)">Phase 2 · Hangeul</button>
+    <button class="hpill p3" onclick="jumpPhase(8)">Phase 3 · K-POP</button>
+    <button class="hpill pg" onclick="openGuide()">🤖 AI Guide</button>
+  </div>
+</header>
+
+<div class="wrap">
+<!-- ═══════════════════ SIDEBAR ══════════════════ -->
+<aside id="sb"></aside>
+
+<!-- ═══════════════════ MAIN ═════════════════════ -->
+<main id="main">
+
+  <!-- Lesson panels (L1–L12) injected by JS -->
+
+  <!-- ════════════════════════════════════════════
+       AI PROMPT GUIDE PANEL
+       ════════════════════════════════════════════ -->
+  <div class="gpanel" id="guide-panel">
+
+    <div class="ghdr">
+      <div class="gtitle">AI Prompt <span>Guide</span></div>
+      <div class="gsub-txt">Student reference for every lesson · Copy prompts · Read the code · Learn the cycle</div>
+    </div>
+
+    <!-- Guide inner tabs -->
+    <div class="gtab-row">
+      <button class="gtab g0 active" onclick="gshow('g0',this)">⓪ History</button>
+      <button class="gtab"    onclick="gshow('g1',this)">① Basics</button>
+      <button class="gtab"    onclick="gshow('g2',this)">② By Lesson</button>
+      <button class="gtab"    onclick="gshow('g3',this)">③ Good vs Bad</button>
+      <button class="gtab"    onclick="gshow('g4',this)">④ Debugging</button>
+      <button class="gtab"    onclick="gshow('g5',this)">⑤ Project</button>
+    </div>
+
+    <!-- ─── G1: BASICS ─────────────────────────── -->
+    <!-- ─── G0: HISTORY ──────────────────────────── -->
+    <div class="gsec show" id="g0">
+      <div class="lang-intro">
+        <strong>Why are we coding with AI in plain English?</strong> — The way humans communicate with computers has changed dramatically over 70 years.
+        Each generation of programming language made computers easier to instruct — until today, where you can describe what you want
+        in natural language and AI translates it into code. This is the context for everything you will do in this course.
+      </div>
+
+      <!-- Timeline -->
+      <div class="lang-timeline">
+        <div class="lang-spine"></div>
+
+        <!-- Era 1 -->
+        <div class="lang-era">
+          <div class="lang-left">
+            <div class="lang-year" style="color:#888">1940s – 1950s</div>
+            <div class="lang-name">Machine Language</div>
+            <div class="lang-langs" style="background:#C0392B18;color:#C0392B">Binary · 0s and 1s</div>
+            <div class="lang-desc">Programmers wrote raw binary numbers — the only language a CPU actually understands. Writing even a simple calculation required hundreds of 1s and 0s. One wrong bit crashed everything.</div>
+          </div>
+          <div class="lang-node" style="border-color:#C0392B;font-size:.85rem;">💾</div>
+          <div class="lang-right" style="padding-left:1.1rem">
+            <div class="lang-code" style="color:#e74c3c">
+              10110000 01100001<br>
+              10001001 11000011<br>
+              <span class="lc-cmt">// Add 97 to register A</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lang-arrow">↓</div>
+
+        <!-- Era 2 -->
+        <div class="lang-era">
+          <div class="lang-left">
+            <div class="lang-code" style="color:#5dade2">
+              MOV AL, 61h<br>
+              ADD AL, BL<br>
+              <span class="lc-cmt">// Add two values</span>
+            </div>
+          </div>
+          <div class="lang-node" style="border-color:#1A5276;font-size:.85rem;">📋</div>
+          <div class="lang-right">
+            <div class="lang-year" style="color:#888">1950s</div>
+            <div class="lang-name">Assembly Language</div>
+            <div class="lang-langs" style="background:#1A527618;color:#5dade2">x86 ASM · MASM</div>
+            <div class="lang-desc">Human-readable abbreviations replaced binary. MOV, ADD, SUB — each mapped directly to one CPU instruction. Still required knowing exactly how hardware worked. Programmers were rare specialists.</div>
+          </div>
+        </div>
+
+        <div class="lang-arrow">↓</div>
+
+        <!-- Era 3 -->
+        <div class="lang-era">
+          <div class="lang-left">
+            <div class="lang-year" style="color:#888">1957 – 1970s</div>
+            <div class="lang-name">High-Level Languages</div>
+            <div class="lang-langs" style="background:#1E844918;color:#2ecc71">FORTRAN · COBOL · C</div>
+            <div class="lang-desc">A compiler translated human-readable code into machine code automatically. One line of FORTRAN replaced dozens of assembly instructions. Scientists could finally write code themselves — without being hardware engineers.</div>
+          </div>
+          <div class="lang-node" style="border-color:#1E8449;font-size:.85rem;">🔬</div>
+          <div class="lang-right">
+            <div class="lang-code" style="color:#a6e3a1">
+              DO I = 1, 10<br>
+              &nbsp;&nbsp;SUM = SUM + I<br>
+              END DO<br>
+              <span class="lc-cmt">// FORTRAN loop (1957)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lang-arrow">↓</div>
+
+        <!-- Era 4 -->
+        <div class="lang-era">
+          <div class="lang-left">
+            <div class="lang-code" style="color:#f5c2e7">
+              class Dog {<br>
+              &nbsp;&nbsp;String name;<br>
+              &nbsp;&nbsp;void bark() { ... }<br>
+              }<br>
+              <span class="lc-cmt">// Java object (1995)</span>
+            </div>
+          </div>
+          <div class="lang-node" style="border-color:#D4AC0D;font-size:.85rem;">🏗️</div>
+          <div class="lang-right">
+            <div class="lang-year" style="color:#888">1980s – 1990s</div>
+            <div class="lang-name">Object-Oriented Languages</div>
+            <div class="lang-langs" style="background:#D4AC0D18;color:#D4AC0D">C++ · Java · C#</div>
+            <div class="lang-desc">Code was organised into objects — self-contained units with data and behaviour. Large teams could build complex software (operating systems, games, business apps) because objects kept complexity manageable.</div>
+          </div>
+        </div>
+
+        <div class="lang-arrow">↓</div>
+
+        <!-- Era 5 -->
+        <div class="lang-era">
+          <div class="lang-left">
+            <div class="lang-year" style="color:#888">1990s – 2010s</div>
+            <div class="lang-name">Scripting & Web Languages</div>
+            <div class="lang-langs" style="background:#6B3AAA18;color:#b07fd4">Python · JavaScript · Ruby</div>
+            <div class="lang-desc">Shorter, more readable syntax. No compilation step needed. Python reads almost like English. JavaScript runs directly in browsers — making the web interactive. Millions of new programmers entered the field. <strong>p5.js is built on JavaScript.</strong></div>
+          </div>
+          <div class="lang-node" style="border-color:#6B3AAA;font-size:.85rem;">🌐</div>
+          <div class="lang-right">
+            <div class="lang-code" style="color:#d7bdf7">
+              for name in names:<br>
+              &nbsp;&nbsp;print(f"Hello {name}")<br>
+              <br>
+              <span class="lc-cmt">// Python — reads like English</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lang-arrow">↓</div>
+
+      </div><!-- /lang-timeline -->
+
+      <!-- NOW: AI / Natural Language -->
+      <div class="lang-now">
+        <div class="lang-now-label">⓪ Now · 2020s — Where You Are Today</div>
+        <div class="lang-now-title">AI / Natural Language Coding</div>
+        <div class="lang-now-desc">
+          You describe what you want in plain English — AI translates it into working code instantly.
+          The barrier between human intention and computer execution has never been lower.
+          But the programmer who <em>understands</em> the code AI generates is far more powerful than one who only pastes it.
+          This course teaches you both: the concepts behind the code, and how to direct AI precisely.
+        </div>
+        <div class="lang-now-example">"Draw a Dancheong pattern with repeating circles in red, blue, and green. Make it interactive so colours change on click."</div>
+      </div>
+
+      <!-- Key Insight card -->
+      <div class="gg gg2" style="margin-top:1rem;">
+        <div class="gcard" style="border-top:2px solid #3498db;">
+          <div class="gtag-lbl"><div class="gdot" style="background:#3498db"></div>The Consistent Pattern</div>
+          <p>Every generation of programming language had the same goal: <strong>make it easier for humans to tell computers what to do</strong>. Machine code → Assembly → High-level → OOP → Scripting → AI. Each step raised the abstraction level. You are learning at the highest abstraction level ever available.</p>
+        </div>
+        <div class="gcard" style="border-top:2px solid #C0392B;">
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>Why Concepts Still Matter</div>
+          <p>AI writes in JavaScript and p5.js — which means it uses <strong>variables, loops, functions, arrays, and objects</strong>. If you don't know what these are, you can't evaluate whether the AI code is correct. The 8 concepts in this course are the vocabulary you need to <em>read</em> AI output, not just run it.</p>
+        </div>
+      </div>
+
+    </div><!-- /g0 -->
+
+    <!-- ─── G1: BASICS ─────────────────────────── -->
+    <div class="gsec" id="g1">
+      <div class="gintro">
+        <strong>What is Vibe Coding?</strong> — You describe what you want in plain English, AI writes the code,
+        you read it, run it, and modify it. You are the <strong>designer and director</strong>.
+        AI is your <strong>assistant</strong>. Never paste code you don't understand.
+      </div>
+
+      <div class="gg gg2">
+
+        <!-- CYCLE -->
+        <div class="gcard gfull">
+          <div class="gacc" style="background:linear-gradient(90deg,#C0392B,#1A4A7A,#1A6B3A,#C89B10,#6B3AAA)"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>The Vibe Coding Cycle — follow this every session</div>
+          <div class="cycle">
+            <div class="cstep"><div class="ccirc" style="background:#C0392B22;border:2px solid #C0392B">📝</div><div class="clbl">1. Prompt</div></div>
+            <div class="carr">→</div>
+            <div class="cstep"><div class="ccirc" style="background:#1A4A7A22;border:2px solid #1A4A7A">▶️</div><div class="clbl">2. Run</div></div>
+            <div class="carr">→</div>
+            <div class="cstep"><div class="ccirc" style="background:#1A6B3A22;border:2px solid #1A6B3A">👀</div><div class="clbl">3. Read</div></div>
+            <div class="carr">→</div>
+            <div class="cstep"><div class="ccirc" style="background:#C89B1022;border:2px solid #C89B10">✏️</div><div class="clbl">4. Modify</div></div>
+            <div class="carr">→</div>
+            <div class="cstep"><div class="ccirc" style="background:#6B3AAA22;border:2px solid #6B3AAA">🔁</div><div class="clbl">5. Repeat</div></div>
+          </div>
+          <p style="text-align:center;font-size:.72rem;color:#888;margin-top:.2rem">Never skip step 3 — reading the code is how you actually learn programming.</p>
+        </div>
+
+        <!-- ANATOMY -->
+        <div class="gcard">
+          <div class="gacc" style="background:#1A4A7A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>Anatomy of a Good Prompt</div>
+          <p>Every strong prompt has <strong>4 ingredients</strong>. Missing any one gives a weaker result.</p>
+          <div class="grule"><div class="gri">🔧</div><div class="grt"><strong>Library</strong> — always start with <code>p5.js</code><br><em>"Using p5.js, …"</em></div></div>
+          <div class="grule"><div class="gri">🎨</div><div class="grt"><strong>Visual</strong> — describe exactly what it looks like<br><em>"… draw 5 circles in a cross …"</em></div></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Colour</strong> — give hex codes<br><em>"… red #C0392B, blue #1A5276 …"</em></div></div>
+          <div class="grule"><div class="gri">🖱</div><div class="grt"><strong>Interaction</strong> — say what click/key does<br><em>"… click to change colour"</em></div></div>
+        </div>
+
+        <!-- AFTER AI -->
+        <div class="gcard">
+          <div class="gacc" style="background:#1A6B3A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>After AI responds — always do this</div>
+          <ul class="gcl">
+            <li><div class="gck"></div>Find every <strong>variable</strong> — what does it store?</li>
+            <li><div class="gck"></div>Find every <strong>function</strong> — what does it do?</li>
+            <li><div class="gck"></div>Find every <strong>loop</strong> — what does it repeat?</li>
+            <li><div class="gck"></div>Find every <strong>condition</strong> — when is it true?</li>
+            <li><div class="gck"></div>Change <strong>one number</strong> — predict before running</li>
+            <li><div class="gck"></div>Add <strong>one comment</strong> to a line you didn't understand</li>
+          </ul>
+        </div>
+
+        <!-- GOLDEN RULES -->
+        <div class="gcard">
+          <div class="gacc" style="background:#C89B10"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C89B10"></div>Golden Rules</div>
+          <div class="grule"><div class="gri">✅</div><div class="grt">Ask for <strong>one feature at a time</strong></div></div>
+          <div class="grule"><div class="gri">✅</div><div class="grt">Ask AI to <strong>add comments on every line</strong></div></div>
+          <div class="grule"><div class="gri">✅</div><div class="grt"><strong>Paste your existing code</strong> when asking for changes</div></div>
+          <div class="grule"><div class="gri">✅</div><div class="grt">If wrong, <strong>describe what is wrong</strong> specifically</div></div>
+          <div class="grule"><div class="gri">🚫</div><div class="grt">Never ask AI to <strong>write the whole project</strong></div></div>
+          <div class="grule"><div class="gri">🚫</div><div class="grt">Never submit code you <strong>can't explain</strong> line by line</div></div>
+        </div>
+
+        <!-- MODIFIER PHRASES -->
+        <div class="gcard gfull">
+          <div class="gacc" style="background:#6B3AAA"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#6B3AAA"></div>Useful Modifier Phrases — add these to any prompt</div>
+          <div class="gg gg4" style="gap:.55rem;margin-top:.4rem">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#6B3AAA;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em">Comments</div>
+              <div class="gpill">add a comment on every line</div>
+              <div class="gpill">explain each line in comments</div>
+              <div class="gpill">comment the WHY not the WHAT</div>
+            </div>
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#1A4A7A;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em">Dancheong Colours</div>
+              <div class="gpill">use Dancheong colours</div>
+              <div class="gpill">red #C0392B</div>
+              <div class="gpill">blue #1A5276</div>
+              <div class="gpill">green #1E8449</div>
+              <div class="gpill">yellow #D4AC0D</div>
+            </div>
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#1A6B3A;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em">Scope Control</div>
+              <div class="gpill">only add that one feature</div>
+              <div class="gpill">do not change anything else</div>
+              <div class="gpill">keep my existing structure</div>
+            </div>
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#8B4400;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.07em">Explain</div>
+              <div class="gpill">explain each parameter</div>
+              <div class="gpill">explain why you used a loop</div>
+              <div class="gpill">what concept does this use?</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /gg2 -->
+    </div><!-- /g1 -->
+
+    <!-- ─── G2: BY LESSON ──────────────────────── -->
+    <div class="gsec" id="g2">
+      <div class="gintro">
+        <strong>Lesson-by-Lesson Prompt Starters</strong> — copy the prompt, paste into Claude or ChatGPT, then complete the task below.
+        Always add <em>"add a comment on every line"</em> to any prompt.
+      </div>
+      <div class="gg gg2">
+
+        <div class="gcard"><div class="gacc" style="background:#C0392B"></div><div class="gnum">1</div>
+          <div class="glvl" style="background:#C0392B18;color:#C0392B">📖 Phase 1 · Dancheong</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>L1 · Sequential Execution + Comments</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"Using <em>p5.js</em>, draw a large red circle on a black background. Add a <strong>comment on every line</strong> explaining what it does. Use Dancheong colours: red <em>#C0392B</em>, blue <em>#1A5276</em>."</div><button class="gcopy" onclick="gc(this,'Using p5.js, draw a large red circle on a black background. Add a comment on every line explaining what it does. Use Dancheong colours: red #C0392B, blue #1A5276.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> swap two lines — what breaks and why?</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#1A4A7A"></div><div class="gnum">2</div>
+          <div class="glvl" style="background:#1A4A7A18;color:#1A4A7A">📖 Phase 1 · Dancheong</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>L2 · Variables</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: draw 5 circles in a cross (Obangsaek). Store each colour as a variable: <em>southRed</em>, <em>eastBlue</em>, <em>centreYellow</em>, <em>westGrey</em>, <em>northBlack</em>. Also store <em>circleSize</em>. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: draw 5 circles in a cross (Obangsaek). Store each colour as a variable: southRed, eastBlue, centreYellow, westGrey, northBlack. Also store circleSize. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> change <code>circleSize</code> to 150 — how many circles update?</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#1A6B3A"></div><div class="gnum">3</div>
+          <div class="glvl" style="background:#1A6B3A18;color:#1A6B3A">📖 Phase 1 · Dancheong</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>L3 · Conditionals (if / else)</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: circle changes colour by mouse quadrant. Top-left=Black, top-right=Blue <em>#1A5276</em>, bottom-left=Red <em>#C0392B</em>, bottom-right=Green. Show direction name with <em>text()</em> inside. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: circle changes colour by mouse quadrant. Top-left=Black, top-right=Blue #1A5276, bottom-left=Red #C0392B, bottom-right=Green. Show direction name with text() inside. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> add a 5th condition — mouse within 60px of centre → Yellow.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#C89B10"></div><div class="gnum">4</div>
+          <div class="glvl" style="background:#C89B1018;color:#C89B10">📖 Phase 1 · Dancheong</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C89B10"></div>L4 · For Loops</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: <em>nested for loops</em> fill 400×400 canvas with Dancheong grid. Each cell (60px) has a circle cycling red<em>#C0392B</em>, blue<em>#1A5276</em>, green<em>#1E8449</em>, yellow<em>#D4AC0D</em>. Small white dot inside. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: nested for loops fill 400x400 canvas with Dancheong grid. Each cell 60px has a circle cycling red #C0392B, blue #1A5276, green #1E8449, yellow #D4AC0D. Small white dot inside. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> change cellSize to 40 — count the new number of circles.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#6B3AAA"></div><div class="gnum">5</div>
+          <div class="glvl" style="background:#6B3AAA18;color:#6B3AAA">📖 Phase 2 · Hangeul</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#6B3AAA"></div>L5 · Functions</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: function <em>drawGiyeok(x, y, size, col)</em> draws Korean consonant G (ㄱ) using two lines. Call it 6 times with different positions and Dancheong colours. Thick strokes. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: function drawGiyeok(x, y, size, col) draws Korean consonant G using two lines. Call it 6 times with different positions and Dancheong colours. Thick strokes. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> copy function, rename to <code>drawNieun</code>, modify to draw ㄴ (L-shape).</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#8B4400"></div><div class="gnum">6</div>
+          <div class="glvl" style="background:#8B440018;color:#8B4400">📖 Phase 2 · Hangeul</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#8B4400"></div>L6 · Arrays</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: store all 14 Korean consonants in an array. Display in 4-column grid. Rounded cards. Cycle Dancheong colours. Show romanization (g,n,d,r,m,b,s,ng,j,ch,k,t,p,h) below each letter. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: store all 14 Korean consonants in an array. Display in 4-column grid. Rounded cards. Cycle Dancheong colours. Show romanization g n d r m b s ng j ch k t p h below each. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> change cols to 7 — what happens to the layout?</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#C0392B"></div><div class="gnum">7</div>
+          <div class="glvl" style="background:#C0392B18;color:#C0392B">📖 Phase 2 · Hangeul</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>L7 · Objects</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js: array of 4 K-POP song objects with <em>title</em>, <em>artist</em>, <em>year</em>, <em>bpm</em>, <em>color</em> (RGB), <em>mood</em>. Cards with BPM bar. Show mood. Gold border for year &gt; 2020. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js: array of 4 K-POP song objects with title, artist, year, bpm, color RGB, mood. Cards with BPM bar. Show mood. Gold border for year > 2020. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> add a <code>plays</code> property — only show songs where <code>bpm &gt; 120</code>.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#1A4A7A"></div><div class="gnum">8</div>
+          <div class="glvl" style="background:#1A4A7A18;color:#1A4A7A">📖 Phase 2 · Hangeul</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>L8 · Integration</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js flashcard app: array of 6 Korean word objects with <em>korean</em>, <em>english</em>, <em>romanization</em>, <em>color</em>. Click to flip. Right arrow advances. Progress indicator (3/6). Score object <em>{known,total}</em>. Press Y = known. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js flashcard app: array of 6 Korean word objects with korean, english, romanization, color. Click to flip. Right arrow advances. Progress indicator. Score object {known, total}. Press Y = known. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> identify which of the 7 concepts appears in the code.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#1A6B3A"></div><div class="gnum">9</div>
+          <div class="glvl" style="background:#1A6B3A18;color:#1A6B3A">📖 Phase 3 · K-POP + AI</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>L9 · Vibe Coding Workflow</div>
+          <div class="gpbox"><div class="gplbl">Prompt</div><div class="gptext">"p5.js K-POP visualizer (no audio): <em>sin(frameCount * 0.05)</em> simulates beat. 6 concentric circles each pulse at different frequency. Dancheong colours. Rotating radial lines. <strong>Add comments.</strong>"</div><button class="gcopy" onclick="gc(this,'p5.js K-POP visualizer no audio: sin(frameCount * 0.05) simulates beat. 6 concentric circles each pulse at different frequency. Dancheong colours. Rotating radial lines. Add comments.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> change <code>0.05→0.1</code>, change <code>6→12</code> rings.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#C89B10"></div><div class="gnum">10</div>
+          <div class="glvl" style="background:#C89B1018;color:#C89B10">📖 Phase 3 · K-POP + AI</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C89B10"></div>L10 · AI Debugging</div>
+          <div class="gpbox"><div class="gplbl">Debug Prompt Template</div><div class="gptext">"My p5.js code gives: <em>[paste error]</em>. Code: <em>[paste code]</em>. <strong>Why does this error occur</strong> and how do I fix it? Explain the fix and add a comment next to it."</div><button class="gcopy" onclick="gc(this,'My p5.js code gives: [paste error]. Code: [paste code]. Why does this error occur and how do I fix it? Explain the fix and add a comment next to it.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Task:</strong> open F12 console. Find the error type. Explain it in your own words.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#6B3AAA"></div><div class="gnum">11</div>
+          <div class="glvl" style="background:#6B3AAA18;color:#6B3AAA">📖 Phase 3 · K-POP + AI</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#6B3AAA"></div>L11 · Free Project</div>
+          <div class="gpbox"><div class="gplbl">Feature Request Template</div><div class="gptext">"Help me add one feature. My code: <em>[paste]</em>. I want to add: <em>[one specific thing only]</em>. <strong>Only add that feature</strong>, do not change anything else. Explain every new line with a comment."</div><button class="gcopy" onclick="gc(this,'Help me add one feature. My code: [paste]. I want to add: [one specific thing only]. Only add that feature, do not change anything else. Explain every new line with a comment.')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>Rule:</strong> explain every line before Demo Day.</div></div>
+        </div>
+
+        <div class="gcard"><div class="gacc" style="background:#8B4400"></div><div class="gnum">12</div>
+          <div class="glvl" style="background:#8B440018;color:#8B4400">📖 Phase 3 · K-POP + AI</div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#8B4400"></div>L12 · Demo Day Retrospective</div>
+          <div class="gpbox"><div class="gplbl">Review Prompt</div><div class="gptext">"Review my p5.js project: <em>[paste code]</em>. 1) List every concept used. 2) Suggest <strong>one specific improvement</strong>. 3) What should I build next to keep learning?"</div><button class="gcopy" onclick="gc(this,'Review my p5.js project: [paste code]. 1) List every concept used. 2) Suggest one specific improvement. 3) What should I build next to keep learning?')">Copy</button></div>
+          <div class="grule"><div class="gri">🎯</div><div class="grt"><strong>After:</strong> write one sentence — what you will build next and why.</div></div>
+        </div>
+
+      </div><!-- /gg2 -->
+    </div><!-- /g2 -->
+
+    <!-- ─── G3: GOOD vs BAD ────────────────────── -->
+    <div class="gsec" id="g3">
+      <div class="gintro"><strong>The quality of your prompt determines the quality of the code.</strong> Vague prompts give vague results. Specific prompts give useful, readable, educational code.</div>
+      <div class="gg gg2">
+
+        <div class="gcard gfull">
+          <div class="gacc" style="background:linear-gradient(90deg,#C0392B 50%,#1A6B3A 50%)"></div>
+          <div class="gtag-lbl">Good vs Bad Prompt Comparison</div>
+          <table class="gtbl">
+            <thead><tr><th style="color:#B03020;width:48%">🚫 Weak Prompt</th><th style="color:#1A6B3A;width:48%">✅ Strong Prompt</th></tr></thead>
+            <tbody>
+              <tr><td class="tbad">"make a circle"</td><td class="tgood">"p5.js: draw a circle at canvas centre, Dancheong red #C0392B, size 200. Comment every line."</td></tr>
+              <tr><td class="tbad">"add colours"</td><td class="tgood">"Change fill to Dancheong blue #1A5276 on mouse click. Do not change any other code."</td></tr>
+              <tr><td class="tbad">"make it move"</td><td class="tgood">"Add sin(frameCount * 0.05) so the circle pulses in size between 80 and 200."</td></tr>
+              <tr><td class="tbad">"fix my code"</td><td class="tgood">"Error: ReferenceError: palette is not defined line 18. Code: [paste]. What causes this?"</td></tr>
+              <tr><td class="tbad">"write my whole project"</td><td class="tgood">"Add ONE feature to my existing code: a click counter shown in the top-right corner."</td></tr>
+              <tr><td class="tbad">"make it better"</td><td class="tgood">"My BPM bar is full width. Change it to use map(song.bpm, 60, 180, 0, 300). Only that line."</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A4A7A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>Prompt Specificity Scale</div>
+          <div class="grule" style="margin-bottom:.55rem"><div class="gri">⭐</div><div class="grt"><strong>Level 1 — Too vague:</strong> "make a Korean pattern" → AI guesses everything</div></div>
+          <div class="grule" style="margin-bottom:.55rem"><div class="gri">⭐⭐</div><div class="grt"><strong>Level 2 — Basic:</strong> "p5.js Dancheong circles" → result is unpredictable</div></div>
+          <div class="grule" style="margin-bottom:.55rem"><div class="gri">⭐⭐⭐</div><div class="grt"><strong>Level 3 — Good:</strong> library + visual + colours + interaction → useful result</div></div>
+          <div class="grule"><div class="gri">⭐⭐⭐⭐</div><div class="grt"><strong>Level 4 — Expert:</strong> Level 3 + existing code + scope limit → precise, safe result</div></div>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A6B3A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>Iteration Prompt Patterns</div>
+          <p style="margin-bottom:.5rem">Use these to refine results step by step:</p>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gptext">"Result is correct but circle is too small. <em>Only change size</em> from 100 to 200."</div></div>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gptext">"This works. Now <em>add one feature</em>: press SPACE to randomise all colours."</div></div>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gptext">"Good. Now <em>extract the drawing into a function</em> called drawPattern(x, y)."</div></div>
+          <div class="gpbox"><div class="gptext">"Loop runs 10 times but I want it to fill the whole canvas. <em>Explain why</em> and fix it."</div></div>
+        </div>
+
+      </div>
+    </div><!-- /g3 -->
+
+    <!-- ─── G4: DEBUGGING ─────────────────────── -->
+    <div class="gsec" id="g4">
+      <div class="gintro"><strong>Bugs are clues, not failures.</strong> The console error tells you exactly what went wrong. Read the error → understand it → describe it to AI → apply the fix → understand the fix.</div>
+      <div class="gg gg2">
+
+        <div class="gcard">
+          <div class="gacc" style="background:#C0392B"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>Common Error Types in p5.js</div>
+          <table class="gtbl">
+            <thead><tr><th>Error</th><th>Meaning</th><th>Common Cause</th></tr></thead>
+            <tbody>
+              <tr><td><code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">ReferenceError</code></td><td>Variable doesn't exist</td><td>Typo or used before <code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">let</code></td></tr>
+              <tr><td><code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">TypeError</code></td><td>Wrong type used</td><td>Missing <code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">()</code> on a function</td></tr>
+              <tr><td><code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">SyntaxError</code></td><td>Code unreadable</td><td>Missing <code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">}</code> or <code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">)</code></td></tr>
+              <tr><td><code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">undefined</code></td><td>No value assigned</td><td>Declared but never set</td></tr>
+              <tr><td>Blank canvas</td><td>No error, no output</td><td><code style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;color:#C0392B">noLoop()</code> or wrong ID</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A4A7A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>How to Use the Browser Console</div>
+          <div class="grule"><div class="gri">1️⃣</div><div class="grt">Press <code>F12</code> (Win) or <code>Cmd+Option+J</code> (Mac)</div></div>
+          <div class="grule"><div class="gri">2️⃣</div><div class="grt">Click the <strong>Console</strong> tab — red errors appear here</div></div>
+          <div class="grule"><div class="gri">3️⃣</div><div class="grt">Click the file:line link to jump to the broken line</div></div>
+          <div class="grule"><div class="gri">4️⃣</div><div class="grt">Add <code>console.log(myVar)</code> to print values while running</div></div>
+          <div class="grule"><div class="gri">5️⃣</div><div class="grt">Copy the full error → paste to AI with your code</div></div>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#C89B10"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C89B10"></div>The 3 Classic Bugs (Lesson 10)</div>
+          <div class="gscaf">
+<span class="sk">let</span> c = <span class="sv">pallete</span>[i % palette.length]; <span class="sc">// 🐛 Bug 1: typo</span>
+ellipse(0, 0, r*2);                   <span class="sc">// 🐛 Bug 2: missing arg</span>
+pop;                                  <span class="sc">// 🐛 Bug 3: not a call</span>
+          </div>
+          <div class="ghr"></div>
+          <div class="grule"><div class="gri">🔧</div><div class="grt"><strong>Bug 1:</strong> <code>pallete</code> → <code>palette</code> — typo (ReferenceError)</div></div>
+          <div class="grule"><div class="gri">🔧</div><div class="grt"><strong>Bug 2:</strong> <code>ellipse(0,0,r*2)</code> → <code>ellipse(0,0,r*2,r*2)</code> — 4 args needed</div></div>
+          <div class="grule"><div class="gri">🔧</div><div class="grt"><strong>Bug 3:</strong> <code>pop</code> → <code>pop()</code> — functions need parentheses (TypeError)</div></div>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A6B3A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>4 Debugging Prompt Templates</div>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gplbl">A — Error Message</div><div class="gptext">"My p5.js gives: <em>[paste full error]</em>. Code: <em>[paste]</em>. Why does this error occur?"</div><button class="gcopy" onclick="gc(this,'My p5.js gives: [paste full error]. Code: [paste]. Why does this error occur and how do I fix it?')">Copy</button></div>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gplbl">B — Wrong Output</div><div class="gptext">"Code runs but circle shows blue, I expected red. Code: <em>[paste]</em>. What is wrong?"</div><button class="gcopy" onclick="gc(this,'Code runs but circle shows blue, I expected red. Code: [paste]. What is wrong?')">Copy</button></div>
+          <div class="gpbox" style="margin-bottom:.42rem"><div class="gplbl">C — Nothing Shows</div><div class="gptext">"Sketch runs with no error but canvas is blank. Code: <em>[paste]</em>. Why is nothing drawing?"</div><button class="gcopy" onclick="gc(this,'Sketch runs with no error but canvas is blank. Code: [paste]. Why is nothing drawing?')">Copy</button></div>
+          <div class="gpbox"><div class="gplbl">D — Understand a Fix</div><div class="gptext">"You changed <em>[old]</em> to <em>[new]</em>. Explain <strong>exactly why</strong> the old version was wrong."</div><button class="gcopy" onclick="gc(this,'You changed [old line] to [new line]. Explain exactly why the old version was wrong and what the new version does.')">Copy</button></div>
+        </div>
+
+      </div>
+    </div><!-- /g4 -->
+
+    <!-- ─── G5: PROJECT ────────────────────────── -->
+    <div class="gsec" id="g5">
+      <div class="gintro"><strong>Lesson 11 — Free Project.</strong> Plan on paper first. Build the core feature before asking AI for anything. Use AI for one specific stuck moment at a time. Explain every line at Demo Day.</div>
+      <div class="gg gg2">
+
+        <div class="gcard">
+          <div class="gacc" style="background:#C0392B"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C0392B"></div>Project Planning Checklist</div>
+          <p style="margin-bottom:.55rem">Answer these <strong>before</strong> opening the code editor:</p>
+          <ul class="gcl">
+            <li><div class="gck"></div><strong>What does it look like?</strong> Sketch on paper (2 min)</li>
+            <li><div class="gck"></div><strong>Korean cultural element?</strong> Dancheong / Hangeul / K-POP / Obangsaek</li>
+            <li><div class="gck"></div><strong>What data do I need?</strong> Array? Object? What properties?</li>
+            <li><div class="gck"></div><strong>What interaction?</strong> Mouse click / key press / hover</li>
+            <li><div class="gck"></div><strong>What function will I write?</strong> Name it + list parameters</li>
+            <li><div class="gck"></div><strong>Which concept am I unsure of?</strong> Start there.</li>
+          </ul>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A4A7A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A4A7A"></div>30-Minute Build Sprint</div>
+          <div class="grule"><div class="gri">📝</div><div class="grt"><strong>0–5 min:</strong> Write the plan. What is the ONE core feature?</div></div>
+          <div class="grule"><div class="gri">⌨️</div><div class="grt"><strong>5–20 min:</strong> Build the core feature only. No polish yet.</div></div>
+          <div class="grule"><div class="gri">🤖</div><div class="grt"><strong>20–25 min:</strong> Use AI for ONE specific stuck thing. Read all output.</div></div>
+          <div class="grule"><div class="gri">✨</div><div class="grt"><strong>25–30 min:</strong> Polish. Colours, layout, interaction. Add comments.</div></div>
+          <div class="ghr"></div>
+          <p style="font-size:.72rem;color:#666">Minimum viable = one screen + one interaction + one Korean cultural element + comments on every function.</p>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#1A6B3A"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#1A6B3A"></div>4 Project Options with Starter Prompts</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#C0392B;margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.06em">A · Dancheong Pattern Generator</div>
+          <div class="gpbox" style="margin-bottom:.6rem"><div class="gptext">"p5.js: click to randomise Dancheong grid. Each click picks random sizes (40–80px) and shuffles colour order. Variables for cell size and colours. Comments."</div><button class="gcopy" onclick="gc(this,'p5.js: click to randomise Dancheong grid. Each click picks random sizes 40-80px and shuffles colour order. Variables for cell size and colours. Comments.')">Copy</button></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#1A4A7A;margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.06em">B · Korean Name Card Maker</div>
+          <div class="gpbox" style="margin-bottom:.6rem"><div class="gptext">"p5.js: large Korean word centred on canvas, Dancheong border. Click cycles through array of 6 words. Show romanization below. Comments."</div><button class="gcopy" onclick="gc(this,'p5.js: large Korean word centred on canvas, Dancheong border. Click cycles through array of 6 words. Show romanization below. Comments.')">Copy</button></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#1A6B3A;margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.06em">C · K-POP Visualizer</div>
+          <div class="gpbox" style="margin-bottom:.6rem"><div class="gptext">"p5.js: K-POP visualizer with sin(frameCount). 8 circles pulse at different speeds. Mouse X controls speed. Click randomises Dancheong colours. Config object. Comments."</div><button class="gcopy" onclick="gc(this,'p5.js: K-POP visualizer with sin(frameCount). 8 circles pulse at different speeds. Mouse X controls speed. Click randomises Dancheong colours. Config object. Comments.')">Copy</button></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;color:#C89B10;margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.06em">D · Obangsaek Explorer</div>
+          <div class="gpbox"><div class="gptext">"p5.js: 5 circles for Obangsaek. Hover to enlarge and show Korean name, direction, element. Array of colour objects. Comments."</div><button class="gcopy" onclick="gc(this,'p5.js: 5 circles for Obangsaek. Hover to enlarge and show Korean name, direction, element. Array of colour objects. Comments.')">Copy</button></div>
+        </div>
+
+        <div class="gcard">
+          <div class="gacc" style="background:#C89B10"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#C89B10"></div>Demo Day Checklist (Lesson 12)</div>
+          <p style="margin-bottom:.5rem">Tick every box before presenting:</p>
+          <ul class="gcl">
+            <li><div class="gck"></div>Uses at least <strong>one array</strong></li>
+            <li><div class="gck"></div>Has at least <strong>one function I wrote myself</strong></li>
+            <li><div class="gck"></div>Has <strong>mouse or keyboard interaction</strong></li>
+            <li><div class="gck"></div>Displays a <strong>Korean cultural visual or text</strong></li>
+            <li><div class="gck"></div>Has <strong>comments</strong> on every function</li>
+            <li><div class="gck"></div>I can explain <strong>every line without AI</strong></li>
+            <li><div class="gck"></div>I know which <strong>3 concepts</strong> I used most</li>
+          </ul>
+        </div>
+
+        <!-- RETROSPECTIVE -->
+        <div class="gcard gfull">
+          <div class="gacc" style="background:linear-gradient(90deg,#6B3AAA,#C0392B)"></div>
+          <div class="gtag-lbl"><div class="gdot" style="background:#6B3AAA"></div>Vibe Coding Retrospective — answer these after the course</div>
+          <div class="gg gg4" style="gap:.8rem;margin-top:.35rem">
+            <div style="background:#F0EBE0;border-radius:3px;padding:.8rem;border:1px solid var(--pborder)">
+              <div style="font-size:1.3rem;margin-bottom:.25rem">🚀</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;color:#6B3AAA;margin-bottom:.25rem;text-transform:uppercase">AI Saved Time On</div>
+              <div style="font-size:.72rem;color:#555;line-height:1.5">What tasks were faster with AI than without it?</div>
+            </div>
+            <div style="background:#F0EBE0;border-radius:3px;padding:.8rem;border:1px solid var(--pborder)">
+              <div style="font-size:1.3rem;margin-bottom:.25rem">🐛</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;color:#C0392B;margin-bottom:.25rem;text-transform:uppercase">AI Got Wrong</div>
+              <div style="font-size:.72rem;color:#555;line-height:1.5">What mistake did AI make that you had to fix?</div>
+            </div>
+            <div style="background:#F0EBE0;border-radius:3px;padding:.8rem;border:1px solid var(--pborder)">
+              <div style="font-size:1.3rem;margin-bottom:.25rem">💡</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;color:#1A6B3A;margin-bottom:.25rem;text-transform:uppercase">Understood Better</div>
+              <div style="font-size:.72rem;color:#555;line-height:1.5">Which concept did AI code help you finally understand?</div>
+            </div>
+            <div style="background:#F0EBE0;border-radius:3px;padding:.8rem;border:1px solid var(--pborder)">
+              <div style="font-size:1.3rem;margin-bottom:.25rem">🔨</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;color:#C89B10;margin-bottom:.25rem;text-transform:uppercase">Build Next</div>
+              <div style="font-size:.72rem;color:#555;line-height:1.5">What will you build on your own, without the curriculum?</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /gg2 -->
+    </div><!-- /g5 -->
+
+  </div><!-- /guide-panel -->
+
+</main>
+</div><!-- /wrap -->
+
+<script>
+// ════════════════════════════════════════════════
+//  LESSON DATA  (p5.js sketches + metadata)
+// ════════════════════════════════════════════════
+const LL = [
+  { ph:1,n:1, title:"Sequential Execution + Comments", sub:"The First Brushstroke — Code runs line by line, top to bottom",
+    tags:["background()","fill()","ellipse()","noStroke()","// comment"],
+    realworld:[
+      {
+        icon:"☕",
+        title:"Making Coffee",
+        steps:["Boil water","Put coffee grounds in filter","Pour hot water slowly","Wait 3 minutes","Remove filter","Pour into cup"],
+        q:"What happens if you pour water before boiling it?"
+      },
+      {
+        icon:"📸",
+        title:"Taking a Photo",
+        steps:["Open camera app","Frame the subject","Focus (tap screen)","Press shutter button","Review the photo","Save or share"],
+        q:"Can you save a photo before pressing the shutter?"
+      },
+      {
+        icon:"🍳",
+        title:"Cooking Ramen",
+        steps:["Boil 550ml of water","Add noodles — cook 3 min","Add soup base packet","Add vegetable flakes","Reduce heat","Serve in bowl"],
+        q:"Why can't you add soup base before boiling water?"
+      },
+      {
+        icon:"🚗",
+        title:"Starting a Car",
+        steps:["Fasten seatbelt","Insert key / press start","Check mirrors","Release handbrake","Select drive gear","Press accelerator"],
+        q:"Why must you select drive gear before pressing the accelerator?"
+      },
+      {
+        icon:"📱",
+        title:"Sending a Message",
+        steps:["Unlock phone","Open messaging app","Select a contact","Type your message","Attach photo (optional)","Press send"],
+        q:"Can you send the message before selecting a contact?"
+      }
+    ],
+    steps:{
+      concept:{t:"Sequential Execution + Comments",b:"Code runs line by line, top to bottom — like reading a recipe. A <code>//</code> comment is a note for humans; the computer ignores it. Order matters: paint the background before drawing shapes on top."},
+      culture:{t:"Dancheong — Korean Temple Colour Art",b:"Dancheong (단청) is the decorative painting on Korean wooden temples. Painters follow a strict layering order: base coat → outline → colour fill → fine detail. Changing the order ruins the artwork — just like reordering your code."},
+      practice:{t:"Draw a Dancheong Circle",b:"Write <code>background()</code>, <code>fill()</code>, and <code>ellipse()</code> in order. Then deliberately swap two lines. What breaks? Understanding why the sequence matters is the lesson."},
+      ai:{t:'Ask AI: "Add a comment to every line"',b:'Prompt: <em>"Using p5.js, draw a red circle on a black background. Add a comment on every single line explaining what it does."</em> Then read each comment aloud and match it to its line.'}
+    },
+    prompt:'"Using p5.js, draw a large red circle on a black background. Add a comment on every line. Use Dancheong colours: red #C0392B, blue #1A5276."',
+    task:"After running the AI code: <strong>find every comment</strong> and match it to the line. Then <strong>swap two lines</strong> — what breaks and why?",
+    code:`<span class="cmt">// Lesson 1 · Sequential Execution + Comments</span>
+<span class="cmt">// Dancheong — The First Brushstroke</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  createCanvas(<span class="num">400</span>, <span class="num">400</span>);     <span class="cmt">// Create a 400×400 canvas</span>
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  <span class="cmt">// Step 1 — background FIRST (base coat)</span>
+  background(<span class="num">20</span>, <span class="num">20</span>, <span class="num">20</span>);
+
+  <span class="cmt">// Step 2 — Dancheong red fill</span>
+  fill(<span class="num">192</span>, <span class="num">57</span>, <span class="num">43</span>);
+  noStroke();
+
+  <span class="cmt">// Step 3 — large outer circle</span>
+  ellipse(<span class="num">200</span>, <span class="num">200</span>, <span class="num">300</span>, <span class="num">300</span>);
+
+  <span class="cmt">// Step 4 — Dancheong blue</span>
+  fill(<span class="num">26</span>, <span class="num">82</span>, <span class="num">118</span>);
+
+  <span class="cmt">// Step 5 — inner circle ON TOP</span>
+  ellipse(<span class="num">200</span>, <span class="num">200</span>, <span class="num">180</span>, <span class="num">180</span>);
+
+  <span class="cmt">// Step 6 — white centre dot</span>
+  fill(<span class="num">245</span>, <span class="num">240</span>, <span class="num">232</span>);
+  ellipse(<span class="num">200</span>, <span class="num">200</span>, <span class="num">60</span>, <span class="num">60</span>);
+
+  <span class="cmt">// ❓ Move background() to the last line — what happens?</span>
+  <span class="cmt">// ❓ Remove noStroke() — what changes?</span>
+}`,
+    sk:p=>{p.setup=()=>{p.createCanvas(360,360);p.noLoop();};p.draw=()=>{p.background(20,20,20);p.fill(192,57,43);p.noStroke();p.ellipse(180,180,280,280);p.fill(26,82,118);p.ellipse(180,180,170,170);p.fill(245,240,232);p.ellipse(180,180,55,55);};}
+  },
+  { ph:1,n:2, title:"Variables", sub:"Containers for Values — Change one, update everything",
+    tags:["let","const","color()","variables","named values"],
+    steps:{
+      concept:{t:"Variables = Named Containers",b:"<code>let size = 100;</code> — change it once and everything that uses it updates automatically. Variables make code flexible, readable, and easy to adjust without hunting for every number."},
+      culture:{t:"Obangsaek — Korea's Five Sacred Colours",b:"Red (South·Fire), Blue (East·Wood), Yellow (Centre·Earth), White (West·Metal), Black (North·Water). Storing these as named variables lets cultural meaning live directly in code."},
+      practice:{t:"Store the Five Colours as Variables",b:"Declare five colour variables — one per direction. Change <em>one</em> variable value and watch the whole pattern update. That single edit demonstrates the power of variables."},
+      ai:{t:'Ask AI: "Rename every colour variable"',b:'Prompt: <em>"Rewrite this Dancheong p5.js sketch so every colour is stored in a clearly named variable (e.g. southRed, eastBlue). Show what changes when I edit just one variable."</em>'}
+    },
+    prompt:'"p5.js: draw 5 circles in a cross (Obangsaek). Store each colour as a variable: southRed, eastBlue, centreYellow, westGrey, northBlack. Store circleSize too. Add comments."',
+    task:"Change <strong>circleSize to 120</strong> — how many circles update? Then <strong>swap southRed and eastBlue</strong>. What moves?",
+    code:`<span class="cmt">// Lesson 2 · Variables — Obangsaek</span>
+
+<span class="kw">let</span> <span class="var">southRed</span>;     <span class="cmt">// South · Fire</span>
+<span class="kw">let</span> <span class="var">eastBlue</span>;     <span class="cmt">// East  · Wood</span>
+<span class="kw">let</span> <span class="var">centreYellow</span>; <span class="cmt">// Centre · Earth</span>
+<span class="kw">let</span> <span class="var">westGrey</span>;     <span class="cmt">// West  · Metal</span>
+<span class="kw">let</span> <span class="var">northBlack</span>;   <span class="cmt">// North · Water</span>
+<span class="kw">let</span> <span class="var">circleSize</span> = <span class="num">100</span>; <span class="cmt">// ❓ Change this one value</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  createCanvas(<span class="num">400</span>, <span class="num">400</span>);
+  <span class="var">southRed</span>     = color(<span class="num">192</span>,<span class="num">57</span>, <span class="num">43</span>);
+  <span class="var">eastBlue</span>     = color(<span class="num">26</span>, <span class="num">82</span>, <span class="num">118</span>);
+  <span class="var">centreYellow</span> = color(<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>);
+  <span class="var">westGrey</span>     = color(<span class="num">160</span>,<span class="num">160</span>,<span class="num">160</span>);
+  <span class="var">northBlack</span>   = color(<span class="num">28</span>, <span class="num">28</span>, <span class="num">28</span>);
+  noLoop();
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>); noStroke();
+  fill(<span class="var">centreYellow</span>); ellipse(<span class="num">200</span>,<span class="num">200</span>,<span class="var">circleSize</span>,<span class="var">circleSize</span>);
+  fill(<span class="var">northBlack</span>);  ellipse(<span class="num">200</span>,<span class="num">88</span>, <span class="var">circleSize</span>,<span class="var">circleSize</span>);
+  fill(<span class="var">southRed</span>);    ellipse(<span class="num">200</span>,<span class="num">312</span>,<span class="var">circleSize</span>,<span class="var">circleSize</span>);
+  fill(<span class="var">eastBlue</span>);    ellipse(<span class="num">88</span>, <span class="num">200</span>,<span class="var">circleSize</span>,<span class="var">circleSize</span>);
+  fill(<span class="var">westGrey</span>);    ellipse(<span class="num">312</span>,<span class="num">200</span>,<span class="var">circleSize</span>,<span class="var">circleSize</span>);
+  <span class="cmt">// ❓ Swap southRed and eastBlue assignments — what moves?</span>
+}`,
+    sk:p=>{p.setup=()=>{p.createCanvas(360,360);p.noLoop();};p.draw=()=>{p.background(245,240,232);p.noStroke();const s=90;p.fill(212,172,13);p.ellipse(180,180,s,s);p.fill(28,28,28);p.ellipse(180,70,s,s);p.fill(192,57,43);p.ellipse(180,290,s,s);p.fill(26,82,118);p.ellipse(70,180,s,s);p.fill(160,160,160);p.ellipse(290,180,s,s);};}
+  },
+  { ph:1,n:3, title:"Conditionals (if / else)", sub:"If this direction, then this colour — Decision-making in code",
+    tags:["if","else if","else","mouseX","mouseY","boolean"],
+    steps:{
+      concept:{t:"if / else — The Program Makes a Choice",b:"<code>if (condition) { ... } else { ... }</code> — the condition is either <em>true</em> or <em>false</em>. The matching block runs. This is how programs respond to different situations."},
+      culture:{t:"Directional Colours in Korean Tradition",b:"Each compass direction carries a colour: Red=South, Blue=East, Black=North, White=West, Yellow=Centre. Temple painters chose paint based on which wall they were decorating — a real-world if/else decision."},
+      practice:{t:"Mouse Position → Colour Change",b:"Divide the canvas into four quadrants. Use <code>if / else if / else</code> to fill the circle with the correct directional colour depending on where the mouse is."},
+      ai:{t:'Ask AI: "Add a centre condition"',b:'Prompt: <em>"Add an else if condition so when the mouse is within 60 pixels of canvas centre (200,200), the circle turns Yellow — the Centre direction colour."</em>'}
+    },
+    prompt:'"p5.js: circle changes colour by mouse quadrant. Top-left=Black, top-right=Blue #1A5276, bottom-left=Red #C0392B, bottom-right=Green. Show direction name with text() inside. Add comments."',
+    task:"Add an <strong>else if</strong>: mouse within 60px of centre → Yellow. Display <strong>'South · Red'</strong> style labels inside the circle.",
+    code:`<span class="cmt">// Lesson 3 · Conditionals — Directional Colours</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  createCanvas(<span class="num">400</span>, <span class="num">400</span>);
+  textAlign(CENTER, CENTER); textSize(<span class="num">15</span>);
+}
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">20</span>, <span class="num">20</span>, <span class="num">20</span>);
+  <span class="kw">let</span> <span class="var">label</span> = <span class="str">""</span>;
+
+  <span class="kw">if</span> (mouseX < width/<span class="num">2</span> && mouseY < height/<span class="num">2</span>) {
+    fill(<span class="num">50</span>,<span class="num">50</span>,<span class="num">50</span>); <span class="var">label</span> = <span class="str">"North · Black"</span>;
+  } <span class="kw">else if</span> (mouseX >= width/<span class="num">2</span> && mouseY < height/<span class="num">2</span>) {
+    fill(<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>); <span class="var">label</span> = <span class="str">"East · Blue"</span>;
+  } <span class="kw">else if</span> (mouseX < width/<span class="num">2</span> && mouseY >= height/<span class="num">2</span>) {
+    fill(<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>); <span class="var">label</span> = <span class="str">"South · Red"</span>;
+  } <span class="kw">else</span> {
+    fill(<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>); <span class="var">label</span> = <span class="str">"Green"</span>;
+  }
+
+  noStroke(); ellipse(<span class="num">200</span>,<span class="num">200</span>,<span class="num">200</span>,<span class="num">200</span>);
+  fill(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>); text(<span class="var">label</span>, <span class="num">200</span>, <span class="num">200</span>);
+  <span class="cmt">// ❓ Add else if: mouse within 60px of centre → Yellow</span>
+}`,
+    sk:p=>{p.setup=()=>{p.createCanvas(360,360);p.textAlign(p.CENTER,p.CENTER);p.textSize(13);};p.draw=()=>{p.background(20,20,20);let n="";const d=Math.sqrt((p.mouseX-180)**2+(p.mouseY-180)**2);if(d<60){p.fill(212,172,13);n="Centre·Yellow";}else if(p.mouseX<180&&p.mouseY<180){p.fill(50,50,50);n="North·Black";}else if(p.mouseX>=180&&p.mouseY<180){p.fill(26,82,118);n="East·Blue";}else if(p.mouseX<180&&p.mouseY>=180){p.fill(192,57,43);n="South·Red";}else{p.fill(30,132,73);n="Green";}p.noStroke();p.ellipse(180,180,180,180);p.fill(245,240,232);p.text(n,180,180);};}
+  },
+  { ph:1,n:4, title:"For Loops", sub:"Repetition Creates Beauty — One rule, infinite pattern",
+    tags:["for","let i=0","i++","nested loops","% modulo"],
+    steps:{
+      concept:{t:"for loop — Repeat N Times",b:"<code>for (let i = 0; i < 10; i++)</code> — start at 0, keep going while i&lt;10, add 1 each step. Use <code>i</code> to calculate positions. Without loops, 50 shapes needs 50 lines of copy-pasted code."},
+      culture:{t:"Dancheong Repeating Motifs",b:"The power of Dancheong comes from exact, rhythmic repetition. The same lotus or geometric unit repeats along beams at perfectly even intervals. A <code>for</code> loop is the digital equivalent of a temple painter's carved stamp."},
+      practice:{t:"Fill the Canvas with a Pattern",b:"Use a single loop for a row of circles. Then nest two loops to fill the entire canvas — a complete Dancheong grid. One function call inside the loop creates the whole artwork."},
+      ai:{t:'Ask AI: "Alternate colours and add rotation"',b:'Prompt: <em>"Modify the for loop so every other cell alternates between Dancheong red and blue. Add a slow rotation that increases with each i+j."</em>'}
+    },
+    prompt:'"p5.js: nested for loops fill 400×400 with Dancheong grid. Each cell 60px has a circle cycling red #C0392B, blue #1A5276, green #1E8449, yellow #D4AC0D. Small white dot inside. Add comments."',
+    task:"Change <strong>cellSize from 60 to 40</strong>. Count the new number of circles. Make inner dot size <strong>depend on (i+j)</strong>.",
+    code:`<span class="cmt">// Lesson 4 · For Loops — Dancheong Repeating Pattern</span>
+
+<span class="kw">let</span> <span class="var">palette</span> = [
+  [<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>],[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>],
+  [<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>],[<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>]
+];
+<span class="kw">let</span> <span class="var">cellSize</span> = <span class="num">60</span>; <span class="cmt">// ❓ Try 40 or 80</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">400</span>); noLoop(); }
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>); noStroke();
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span>&lt;height/<span class="var">cellSize</span>; <span class="var">i</span>++) {     <span class="cmt">// rows</span>
+    <span class="kw">for</span> (<span class="kw">let</span> <span class="var">j</span>=<span class="num">0</span>; <span class="var">j</span>&lt;width/<span class="var">cellSize</span>; <span class="var">j</span>++) {    <span class="cmt">// columns</span>
+      <span class="kw">let</span> <span class="var">c</span> = <span class="var">palette</span>[(<span class="var">i</span>+<span class="var">j</span>) % <span class="num">4</span>];            <span class="cmt">// cycle colours</span>
+      <span class="kw">let</span> <span class="var">x</span> = <span class="var">j</span>*<span class="var">cellSize</span> + <span class="var">cellSize</span>/<span class="num">2</span>;
+      <span class="kw">let</span> <span class="var">y</span> = <span class="var">i</span>*<span class="var">cellSize</span> + <span class="var">cellSize</span>/<span class="num">2</span>;
+      fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]);
+      ellipse(<span class="var">x</span>,<span class="var">y</span>,<span class="var">cellSize</span>-<span class="num">4</span>,<span class="var">cellSize</span>-<span class="num">4</span>);
+      fill(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>);
+      ellipse(<span class="var">x</span>,<span class="var">y</span>,<span class="var">cellSize</span>/<span class="num">3</span>,<span class="var">cellSize</span>/<span class="num">3</span>);
+    }
+  }
+}`,
+    sk:p=>{const pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13]],cs=55;p.setup=()=>{p.createCanvas(360,360);p.noLoop();};p.draw=()=>{p.background(20,20,20);p.noStroke();for(let i=0;i<p.height/cs;i++)for(let j=0;j<p.width/cs;j++){const c=pal[(i+j)%4],x=j*cs+cs/2,y=i*cs+cs/2;p.fill(c[0],c[1],c[2]);p.ellipse(x,y,cs-4,cs-4);p.fill(245,240,232);p.ellipse(x,y,cs/3,cs/3);}};}
+  },
+  { ph:2,n:5, title:"Functions", sub:"Build Your Own Commands — Define once, call many times",
+    tags:["function","parameters","arguments","line()","strokeWeight()"],
+    steps:{
+      concept:{t:"function = A Reusable Recipe",b:"<code>function draw(x, y, size) { ... }</code> — define the recipe once with parameters, call it as many times as you need with different arguments. The same function produces different results."},
+      culture:{t:"Hangeul — The Korean Alphabet",b:"Hangeul was created in 1443 by King Sejong. Each consonant is based on the shape the mouth makes to produce the sound. The simplest consonant G (ㄱ) is just two lines at a right angle — a perfect first function to write."},
+      practice:{t:"Write drawGiyeok(x, y, size)",b:"Create a function that draws the G consonant (ㄱ) using two <code>line()</code> calls. Then call it five times at different positions — five characters from one function definition."},
+      ai:{t:'Ask AI: "Make functions for N and D too"',b:'Prompt: <em>"Using my drawGiyeok() as a model, write drawNieun() for the N consonant (ㄴ — L-shape) and drawDigeut() for D (ㄷ). Each takes x, y, size parameters."</em>'}
+    },
+    prompt:'"p5.js: function drawGiyeok(x, y, size, col) draws Korean G consonant using two lines. Call it 6 times with different positions and Dancheong colours. Thick strokes. Add comments."',
+    task:"Copy <strong>drawGiyeok</strong> and rename it <strong>drawNieun</strong>. Modify the lines to form the L-shape ㄴ. Display G and N side by side.",
+    code:`<span class="cmt">// Lesson 5 · Functions — Hangeul Consonants</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() {
+  createCanvas(<span class="num">400</span>,<span class="num">400</span>);
+  background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>); strokeCap(SQUARE);
+  <span class="fn">drawGiyeok</span>(<span class="num">50</span>, <span class="num">70</span>, <span class="num">80</span>, [<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>]);
+  <span class="fn">drawNieun</span> (<span class="num">190</span>,<span class="num">70</span>, <span class="num">80</span>, [<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>]);
+  <span class="fn">drawGiyeok</span>(<span class="num">310</span>,<span class="num">70</span>, <span class="num">60</span>, [<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>]);
+  <span class="fn">drawNieun</span> (<span class="num">60</span>, <span class="num">250</span>,<span class="num">100</span>, [<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>]);
+  <span class="fn">drawGiyeok</span>(<span class="num">240</span>,<span class="num">235</span>,<span class="num">115</span>, [<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>]);
+}
+
+<span class="cmt">// ㄱ  G — top bar + right drop</span>
+<span class="kw">function</span> <span class="fn">drawGiyeok</span>(<span class="var">x</span>,<span class="var">y</span>,<span class="var">size</span>,<span class="var">col</span>) {
+  stroke(<span class="var">col</span>[<span class="num">0</span>],<span class="var">col</span>[<span class="num">1</span>],<span class="var">col</span>[<span class="num">2</span>]); strokeWeight(<span class="var">size</span>/<span class="num">8</span>); noFill();
+  line(<span class="var">x</span>,<span class="var">y</span>,<span class="var">x</span>+<span class="var">size</span>,<span class="var">y</span>);           <span class="cmt">// top bar →</span>
+  line(<span class="var">x</span>+<span class="var">size</span>,<span class="var">y</span>,<span class="var">x</span>+<span class="var">size</span>,<span class="var">y</span>+<span class="var">size</span>); <span class="cmt">// right drop ↓</span>
+}
+
+<span class="cmt">// ㄴ  N — left drop + bottom bar</span>
+<span class="kw">function</span> <span class="fn">drawNieun</span>(<span class="var">x</span>,<span class="var">y</span>,<span class="var">size</span>,<span class="var">col</span>) {
+  stroke(<span class="var">col</span>[<span class="num">0</span>],<span class="var">col</span>[<span class="num">1</span>],<span class="var">col</span>[<span class="num">2</span>]); strokeWeight(<span class="var">size</span>/<span class="num">8</span>); noFill();
+  line(<span class="var">x</span>,<span class="var">y</span>,<span class="var">x</span>,<span class="var">y</span>+<span class="var">size</span>);           <span class="cmt">// left drop ↓</span>
+  line(<span class="var">x</span>,<span class="var">y</span>+<span class="var">size</span>,<span class="var">x</span>+<span class="var">size</span>,<span class="var">y</span>+<span class="var">size</span>); <span class="cmt">// bottom bar →</span>
+}
+<span class="cmt">// ❓ Create drawDigeut() for D (ㄷ) — like N with a top bar</span>`,
+    sk:p=>{p.setup=()=>{p.createCanvas(360,360);p.background(20,20,20);p.strokeCap(p.SQUARE);const dg=(x,y,s,c)=>{p.stroke(c);p.strokeWeight(s/8);p.noFill();p.line(x,y,x+s,y);p.line(x+s,y,x+s,y+s);};const nn=(x,y,s,c)=>{p.stroke(c);p.strokeWeight(s/8);p.noFill();p.line(x,y,x,y+s);p.line(x,y+s,x+s,y+s);};dg(40,60,80,'#C0392B');nn(170,60,80,'#1A5276');dg(285,68,60,'#1E8449');nn(45,220,100,'#D4AC0D');dg(195,210,110,'#C0392B');};}
+  },
+  { ph:2,n:6, title:"Arrays", sub:"Lists of Data — Store many values in one variable",
+    tags:["[]","array","index",".length","push()","text()"],
+    steps:{
+      concept:{t:"Array = Ordered List",b:"<code>let consonants = ['G','N','D',...]</code> — one variable holds all 14 values. Access by index: <code>consonants[0]</code> = 'G'. Combine with a <code>for</code> loop to process every item automatically."},
+      culture:{t:"14 Korean Consonants",b:"Hangeul has exactly 14 basic consonants. An array is the perfect structure — ordered, indexed, loopable. Each consonant has a fixed position in the Korean alphabet, just like array indices are fixed."},
+      practice:{t:"Display All 14 Consonants in a Grid",b:"Store all 14 in one array. Use a <code>for</code> loop and index <code>i</code> to display them in a 4-column grid. Give each card a different Dancheong colour based on its position."},
+      ai:{t:'Ask AI: "Add romanization below each letter"',b:'Prompt: <em>"Add a second parallel array called romanization with the values g, n, d, r, m, b, s, ng, j, ch, k, t, p, h. Display romanization[i] in small text below each card."</em>'}
+    },
+    prompt:'"p5.js: store all 14 Korean consonants in an array. Display in 4-column grid. Rounded cards. Cycle Dancheong colours. Show romanization below each letter. Add comments."',
+    task:"Add a <strong>second array</strong> <code>romanization</code>. Display <code>romanization[i]</code> below each letter. Change cols to 7 — what happens?",
+    code:`<span class="cmt">// Lesson 6 · Arrays — 14 Korean Consonants</span>
+
+<span class="kw">let</span> <span class="var">consonants</span> = [
+  <span class="str">'ㄱ'</span>,<span class="str">'ㄴ'</span>,<span class="str">'ㄷ'</span>,<span class="str">'ㄹ'</span>,<span class="str">'ㅁ'</span>,<span class="str">'ㅂ'</span>,<span class="str">'ㅅ'</span>,
+  <span class="str">'ㅇ'</span>,<span class="str">'ㅈ'</span>,<span class="str">'ㅊ'</span>,<span class="str">'ㅋ'</span>,<span class="str">'ㅌ'</span>,<span class="str">'ㅍ'</span>,<span class="str">'ㅎ'</span>
+];
+<span class="kw">let</span> <span class="var">romanization</span> = [
+  <span class="str">'g'</span>,<span class="str">'n'</span>,<span class="str">'d'</span>,<span class="str">'r'</span>,<span class="str">'m'</span>,<span class="str">'b'</span>,<span class="str">'s'</span>,
+  <span class="str">'ng'</span>,<span class="str">'j'</span>,<span class="str">'ch'</span>,<span class="str">'k'</span>,<span class="str">'t'</span>,<span class="str">'p'</span>,<span class="str">'h'</span>
+];
+<span class="kw">let</span> <span class="var">palette</span> = [[<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>],[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>],[<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>],[<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>]];
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">420</span>); noLoop(); }
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>);
+  <span class="kw">let</span> <span class="var">cols</span>=<span class="num">4</span>, <span class="var">cw</span>=width/<span class="var">cols</span>, <span class="var">ch</span>=<span class="num">92</span>;
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span>&lt;<span class="var">consonants</span>.length; <span class="var">i</span>++) {
+    <span class="kw">let</span> <span class="var">x</span>=(<span class="var">i</span>%<span class="var">cols</span>)*<span class="var">cw</span>+<span class="var">cw</span>/<span class="num">2</span>, <span class="var">y</span>=Math.floor(<span class="var">i</span>/<span class="var">cols</span>)*<span class="var">ch</span>+<span class="num">50</span>;
+    <span class="kw">let</span> <span class="var">c</span>=<span class="var">palette</span>[<span class="var">i</span>%<span class="num">4</span>];
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">38</span>); stroke(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]);
+    rect(<span class="var">x</span>-<span class="num">40</span>,<span class="var">y</span>-<span class="num">35</span>,<span class="num">80</span>,<span class="num">72</span>,<span class="num">8</span>);
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); noStroke();
+    textSize(<span class="num">30</span>); textAlign(CENTER,CENTER);
+    text(<span class="var">consonants</span>[<span class="var">i</span>],<span class="var">x</span>,<span class="var">y</span>-<span class="num">6</span>);         <span class="cmt">// consonants[i]</span>
+    fill(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>,<span class="num">170</span>); textSize(<span class="num">11</span>);
+    text(<span class="var">romanization</span>[<span class="var">i</span>],<span class="var">x</span>,<span class="var">y</span>+<span class="num">24</span>);       <span class="cmt">// romanization[i]</span>
+  }
+}`,
+    sk:p=>{const con=['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'],rom=['g','n','d','r','m','b','s','ng','j','ch','k','t','p','h'],pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13]];p.setup=()=>{p.createCanvas(360,380);p.noLoop();};p.draw=()=>{p.background(20,20,20);const cols=4,cw=p.width/cols,ch=86;for(let i=0;i<con.length;i++){const c=pal[i%4],col=i%cols,row=Math.floor(i/cols),x=col*cw+cw/2,y=row*ch+46;p.fill(c[0],c[1],c[2],38);p.stroke(c[0],c[1],c[2]);p.strokeWeight(1);p.rect(x-36,y-32,72,64,7);p.fill(c[0],c[1],c[2]);p.noStroke();p.textSize(26);p.textAlign(p.CENTER,p.CENTER);p.text(con[i],x,y-4);p.fill(245,240,232,170);p.textSize(10);p.text(rom[i],x,y+22);}};}
+  },
+  { ph:2,n:7, title:"Objects", sub:"Group Related Data — One object per real-world thing",
+    tags:["{ }","object","dot notation",".property","array of objects"],
+    steps:{
+      concept:{t:"Object = Bundled Properties",b:"<code>let song = { title: 'Dynamite', artist: 'BTS', year: 2020 }</code> — groups related data under one name. Access with dot notation: <code>song.title</code>. An <em>array of objects</em> is the backbone of every real app."},
+      culture:{t:"K-POP Song Cards",b:"A K-POP song has many properties: title, artist, year, BPM, colour theme, mood. An object groups all of them together. An array of song objects = a complete music library you can loop through and display."},
+      practice:{t:"Build a K-POP Song Library",b:"Create an array of four song objects, each with <code>title</code>, <code>artist</code>, <code>year</code>, <code>bpm</code>, <code>color</code>, and <code>mood</code> properties. Loop through and draw each as a styled card with a BPM bar."},
+      ai:{t:'Ask AI: "Add a mood property and filter"',b:'Prompt: <em>"Add a mood property (energetic/calm/emotional) to each song object. Add an if statement inside the loop that only draws cards where mood is energetic."</em>'}
+    },
+    prompt:'"p5.js: array of 4 K-POP song objects with title, artist, year, bpm, color RGB, mood. Cards with BPM bar. Show mood. Gold border for year > 2020. Add comments."',
+    task:"Add a <strong>mood property</strong> to each song. Display it. Then add a condition: songs with <code>bpm > 120</code> show a brighter border.",
+    code:`<span class="cmt">// Lesson 7 · Objects — K-POP Song Cards</span>
+
+<span class="kw">let</span> <span class="var">songs</span> = [
+  {title:<span class="str">"Dynamite"</span>,artist:<span class="str">"BTS"</span>,    year:<span class="num">2020</span>,bpm:<span class="num">114</span>,color:[<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>],mood:<span class="str">"energetic"</span>},
+  {title:<span class="str">"Hype Boy"</span>, artist:<span class="str">"NewJeans"</span>,year:<span class="num">2022</span>,bpm:<span class="num">130</span>,color:[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>], mood:<span class="str">"energetic"</span>},
+  {title:<span class="str">"Love Dive"</span>,artist:<span class="str">"IVE"</span>,    year:<span class="num">2022</span>,bpm:<span class="num">118</span>,color:[<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>], mood:<span class="str">"emotional"</span>},
+  {title:<span class="str">"Flower"</span>,   artist:<span class="str">"JISOO"</span>,  year:<span class="num">2023</span>,bpm:<span class="num">95</span>, color:[<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>], mood:<span class="str">"calm"</span>},
+];
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">440</span>); noLoop(); }
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>);
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span>&lt;<span class="var">songs</span>.length; <span class="var">i</span>++) {
+    <span class="kw">let</span> <span class="var">s</span>=<span class="var">songs</span>[<span class="var">i</span>], <span class="var">y</span>=<span class="num">28</span>+<span class="var">i</span>*<span class="num">102</span>, <span class="var">c</span>=<span class="var">s</span>.color;
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">28</span>);
+    <span class="kw">if</span> (<span class="var">s</span>.year > <span class="num">2020</span>) { stroke(<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>); strokeWeight(<span class="num">2</span>); }
+    <span class="kw">else</span>              { stroke(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); strokeWeight(<span class="num">1</span>); }
+    rect(<span class="num">18</span>,<span class="var">y</span>,<span class="num">364</span>,<span class="num">88</span>,<span class="num">8</span>);
+    fill(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>); noStroke(); textSize(<span class="num">15</span>); textAlign(LEFT,TOP);
+    text(<span class="var">s</span>.title, <span class="num">36</span>,<span class="var">y</span>+<span class="num">13</span>);
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); textSize(<span class="num">11</span>);
+    text(<span class="var">s</span>.artist+<span class="str">" · "</span>+<span class="var">s</span>.year, <span class="num">36</span>,<span class="var">y</span>+<span class="num">35</span>);
+    fill(<span class="num">130</span>); textSize(<span class="num">10</span>); text(<span class="var">s</span>.mood, <span class="num">36</span>,<span class="var">y</span>+<span class="num">54</span>);
+    fill(<span class="num">38</span>,<span class="num">38</span>,<span class="num">38</span>); rect(<span class="num">36</span>,<span class="var">y</span>+<span class="num">68</span>,<span class="num">300</span>,<span class="num">8</span>,<span class="num">4</span>);
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]);
+    rect(<span class="num">36</span>,<span class="var">y</span>+<span class="num">68</span>,map(<span class="var">s</span>.bpm,<span class="num">60</span>,<span class="num">180</span>,<span class="num">0</span>,<span class="num">300</span>),<span class="num">8</span>,<span class="num">4</span>);
+  }
+}`,
+    sk:p=>{const songs=[{title:"Dynamite",artist:"BTS",year:2020,bpm:114,color:[212,172,13]},{title:"Hype Boy",artist:"NewJeans",year:2022,bpm:130,color:[26,82,118]},{title:"Love Dive",artist:"IVE",year:2022,bpm:118,color:[192,57,43]},{title:"Flower",artist:"JISOO",year:2023,bpm:95,color:[30,132,73]}];p.setup=()=>{p.createCanvas(360,400);p.noLoop();};p.draw=()=>{p.background(20,20,20);for(let i=0;i<songs.length;i++){const s=songs[i],y=20+i*93,c=s.color;p.fill(c[0],c[1],c[2],28);if(s.year>2020){p.stroke(212,172,13);p.strokeWeight(2);}else{p.stroke(c[0],c[1],c[2]);p.strokeWeight(1);}p.rect(14,y,332,78,7);p.fill(245,240,232);p.noStroke();p.textSize(13);p.textAlign(p.LEFT,p.TOP);p.text(s.title,30,y+11);p.fill(c[0],c[1],c[2]);p.textSize(10);p.text(s.artist+' · '+s.year,30,y+30);p.fill(38,38,38);p.rect(30,y+58,270,7,3);p.fill(c[0],c[1],c[2]);p.rect(30,y+58,p.map(s.bpm,60,180,0,270),7,3);}};}
+  },
+  { ph:2,n:8, title:"Integration — All Concepts Together", sub:"Interactive Hangeul Flashcard App — Build something real",
+    tags:["mousePressed()","keyPressed()","state","flip","all 7 concepts"],
+    steps:{
+      concept:{t:"Real Programs Use All Concepts at Once",b:"Objects store data. Arrays hold collections. Functions do the work. Conditionals make decisions. Variables track state. Loops process lists. This lesson combines all seven into one interactive app."},
+      culture:{t:"Hangeul Word Flashcards",b:"Korean vocabulary cards: click to reveal English, right arrow advances, press Y if you knew the word. A simple, practical app that blends all programming concepts with Korean language learning."},
+      practice:{t:"Clickable Word Card App",b:"Array of word objects → display function → <code>mousePressed()</code> to flip → <code>keyPressed()</code> to advance → conditional for Korean or English → score object to track progress."},
+      ai:{t:'Ask AI: "Add keyboard navigation and score"',b:'Prompt: <em>"Add keyPressed() so right arrow advances. Add a score object { known: 0, total: 0 }. Press Y to count as known. Display known / total in the corner."</em>'}
+    },
+    prompt:'"p5.js flashcard app: array of 6 Korean word objects with korean, english, romanization, color. Click to flip. Right arrow advances. Progress indicator. Score object {known, total}. Press Y = known. Add comments."',
+    task:"Add a <strong>score object</strong> <code>{ known: 0, total: 0 }</code>. Press <strong>Y</strong> to count known. Display <strong>known / total</strong> in the corner.",
+    code:`<span class="cmt">// Lesson 8 · Integration — Hangeul Flashcard App</span>
+
+<span class="kw">let</span> <span class="var">currentIndex</span>=<span class="num">0</span>, <span class="var">isFlipped</span>=<span class="kw">false</span>;
+<span class="kw">let</span> <span class="var">score</span>={known:<span class="num">0</span>,total:<span class="num">0</span>};
+<span class="kw">let</span> <span class="var">words</span>=[
+  {korean:<span class="str">"사랑"</span>,english:<span class="str">"Love"</span>,  roman:<span class="str">"sarang"</span>,color:[<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>]},
+  {korean:<span class="str">"하늘"</span>,english:<span class="str">"Sky"</span>,   roman:<span class="str">"haneul"</span>,color:[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>]},
+  {korean:<span class="str">"봄"</span>,  english:<span class="str">"Spring"</span>,roman:<span class="str">"bom"</span>,   color:[<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>]},
+  {korean:<span class="str">"별"</span>,  english:<span class="str">"Star"</span>,  roman:<span class="str">"byeol"</span>, color:[<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>]},
+  {korean:<span class="str">"꽃"</span>,  english:<span class="str">"Flower"</span>,roman:<span class="str">"kkot"</span>,  color:[<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>]},
+  {korean:<span class="str">"바다"</span>,english:<span class="str">"Ocean"</span>, roman:<span class="str">"bada"</span>,  color:[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>]},
+];
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">450</span>); }
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>);
+  <span class="fn">drawCard</span>(<span class="var">words</span>[<span class="var">currentIndex</span>],<span class="var">isFlipped</span>);
+  fill(<span class="num">110</span>); noStroke(); textSize(<span class="num">11</span>); textAlign(RIGHT,TOP);
+  text(<span class="str">"Known: "</span>+<span class="var">score</span>.known+<span class="str">" / "</span>+<span class="var">words</span>.length,<span class="num">390</span>,<span class="num">16</span>);
+}
+<span class="kw">function</span> <span class="fn">drawCard</span>(<span class="var">word</span>,<span class="var">flipped</span>) {
+  <span class="kw">let</span> <span class="var">c</span>=<span class="var">word</span>.color;
+  fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">22</span>); stroke(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); strokeWeight(<span class="num">2</span>);
+  rect(<span class="num">40</span>,<span class="num">80</span>,<span class="num">320</span>,<span class="num">250</span>,<span class="num">14</span>); textAlign(CENTER,CENTER);
+  <span class="kw">if</span> (!<span class="var">flipped</span>) {
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); textSize(<span class="num">72</span>); text(<span class="var">word</span>.korean,<span class="num">200</span>,<span class="num">183</span>);
+    fill(<span class="num">150</span>); textSize(<span class="num">13</span>); text(<span class="var">word</span>.roman,<span class="num">200</span>,<span class="num">252</span>);
+  } <span class="kw">else</span> {
+    fill(<span class="num">245</span>,<span class="num">240</span>,<span class="num">232</span>); textSize(<span class="num">38</span>); text(<span class="var">word</span>.english,<span class="num">200</span>,<span class="num">185</span>);
+    fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]); textSize(<span class="num">20</span>); text(<span class="var">word</span>.korean,<span class="num">200</span>,<span class="num">245</span>);
+  }
+}
+<span class="kw">function</span> <span class="fn">mousePressed</span>() { <span class="var">isFlipped</span>=!<span class="var">isFlipped</span>; }
+<span class="kw">function</span> <span class="fn">keyPressed</span>() {
+  <span class="kw">if</span>(key===<span class="str">'y'</span>||key===<span class="str">'Y'</span>) <span class="var">score</span>.known++;
+  <span class="kw">if</span>(keyCode===RIGHT_ARROW){ <span class="var">currentIndex</span>=(<span class="var">currentIndex</span>+<span class="num">1</span>)%<span class="var">words</span>.length; <span class="var">isFlipped</span>=<span class="kw">false</span>; }
+}`,
+    sk:p=>{let idx=0,flipped=false;const words=[{korean:"사랑",english:"Love",roman:"sarang",color:[192,57,43]},{korean:"하늘",english:"Sky",roman:"haneul",color:[26,82,118]},{korean:"봄",english:"Spring",roman:"bom",color:[30,132,73]},{korean:"별",english:"Star",roman:"byeol",color:[212,172,13]}];p.setup=()=>{p.createCanvas(360,400);};p.draw=()=>{p.background(20,20,20);const w=words[idx],c=w.color;p.fill(c[0],c[1],c[2],22);p.stroke(c[0],c[1],c[2]);p.strokeWeight(2);p.rect(28,60,304,238,12);p.textAlign(p.CENTER,p.CENTER);if(!flipped){p.fill(c[0],c[1],c[2]);p.noStroke();p.textSize(60);p.text(w.korean,180,168);p.fill(150);p.textSize(12);p.text(w.roman,180,228);}else{p.fill(245,240,232);p.noStroke();p.textSize(30);p.text(w.english,180,168);p.fill(c[0],c[1],c[2]);p.textSize(17);p.text(w.korean,180,222);}p.fill(100);p.textSize(10);p.textAlign(p.CENTER,p.TOP);p.text((idx+1)+' / '+words.length,180,42);p.fill(c[0],c[1],c[2],75);p.stroke(c[0],c[1],c[2]);p.rect(128,320,104,34,8);p.fill(245,240,232);p.noStroke();p.textSize(11);p.text("Next →",180,337);};p.mousePressed=()=>{if(p.mouseY>320&&p.mouseY<354&&p.mouseX>128&&p.mouseX<232){idx=(idx+1)%words.length;flipped=false;}else flipped=!flipped;};}
+  },
+  { ph:3,n:9, title:"Vibe Coding Workflow", sub:"The Full AI Cycle — Prompt → Run → Read → Modify → Repeat",
+    tags:["sin()","frameCount","map()","translate()","rotate()"],
+    steps:{
+      concept:{t:"The Vibe Coding Cycle",b:"<strong>1. Prompt</strong> → <strong>2. Run</strong> → <strong>3. Read</strong> → <strong>4. Modify</strong> → <strong>5. Prompt again.</strong> Good prompts name the library, describe the visual, specify colours, and mention interaction."},
+      culture:{t:"K-POP Visual Aesthetics",b:"K-POP is as visual as musical — concert light shows, music video colour palettes, logo animations. This lesson builds a rhythmic visualizer using <code>sin()</code> waves to simulate a beat — no audio file needed."},
+      practice:{t:"Animated K-POP Visualizer",b:"Use <code>sin(frameCount)</code> to simulate amplitude. Concentric circles pulse at different frequencies. Radial lines rotate. All previous concepts work together in one sketch."},
+      ai:{t:"Full Vibe Cycle — Prompt → Read → Change",b:'Prompt: <em>"p5.js K-POP visualizer: 6 concentric circles pulse using sin(frameCount). Dancheong colours. Rotating radial lines."</em> Find every variable. Change 0.05→0.1. Add 3 more rings.'}
+    },
+    prompt:'"p5.js K-POP visualizer (no audio): sin(frameCount * 0.05) simulates beat. 6 concentric circles each pulsing at different frequency. Dancheong colours. Rotating radial lines. Add comments."',
+    task:"Find <strong>every variable</strong> and write what it controls. Change <strong>0.05→0.1</strong>. Change <strong>6→12 rings</strong>.",
+    code:`<span class="cmt">// Lesson 9 · Vibe Coding — K-POP Visualizer</span>
+
+<span class="kw">let</span> <span class="var">config</span> = {
+  rings:<span class="num">6</span>,      <span class="cmt">// ❓ Change to 12</span>
+  speed:<span class="num">0.05</span>,   <span class="cmt">// ❓ Change to 0.1</span>
+  maxRadius:<span class="num">160</span>, lineCount:<span class="num">24</span>
+};
+<span class="kw">let</span> <span class="var">palette</span>=[
+  [<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>],[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>],[<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>],
+  [<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>],[<span class="num">100</span>,<span class="num">50</span>,<span class="num">160</span>],[<span class="num">180</span>,<span class="num">90</span>,<span class="num">20</span>]
+];
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">400</span>); }
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">10</span>,<span class="num">10</span>,<span class="num">10</span>,<span class="num">30</span>);
+  translate(width/<span class="num">2</span>,height/<span class="num">2</span>);
+  <span class="kw">for</span> (<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span>&lt;<span class="var">config</span>.rings; <span class="var">i</span>++) {
+    <span class="kw">let</span> <span class="var">pulse</span>=sin(frameCount*<span class="var">config</span>.speed+<span class="var">i</span>*<span class="num">0.8</span>);
+    <span class="kw">let</span> <span class="var">r</span>=map(<span class="var">pulse</span>,-<span class="num">1</span>,<span class="num">1</span>,<span class="num">20</span>,<span class="var">config</span>.maxRadius/(<span class="var">i</span>+<span class="num">1</span>)*<span class="num">2</span>);
+    <span class="kw">let</span> <span class="var">c</span>=<span class="var">palette</span>[<span class="var">i</span>%<span class="var">palette</span>.length];
+    <span class="kw">if</span>(<span class="var">i</span>&lt;<span class="num">2</span>){fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">180</span>);noStroke();}
+    <span class="kw">else</span>{noFill();stroke(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>]);strokeWeight(<span class="num">2</span>);}
+    ellipse(<span class="num">0</span>,<span class="num">0</span>,<span class="var">r</span>*<span class="num">2</span>,<span class="var">r</span>*<span class="num">2</span>);
+  }
+  <span class="fn">drawRadialLines</span>();
+}
+<span class="kw">function</span> <span class="fn">drawRadialLines</span>() {
+  <span class="kw">let</span> <span class="var">step</span>=TWO_PI/<span class="var">config</span>.lineCount, <span class="var">rot</span>=frameCount*<span class="num">0.01</span>;
+  <span class="kw">for</span>(<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>;<span class="var">i</span>&lt;<span class="var">config</span>.lineCount;<span class="var">i</span>++){
+    <span class="kw">let</span> <span class="var">a</span>=<span class="var">i</span>*<span class="var">step</span>+<span class="var">rot</span>, <span class="var">c</span>=<span class="var">palette</span>[<span class="var">i</span>%<span class="var">palette</span>.length];
+    stroke(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">55</span>); strokeWeight(<span class="num">1</span>);
+    line(<span class="num">0</span>,<span class="num">0</span>,cos(<span class="var">a</span>)*<span class="num">180</span>,sin(<span class="var">a</span>)*<span class="num">180</span>);
+  }
+}`,
+    sk:p=>{const pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13],[100,50,160],[180,90,20]];p.setup=()=>{p.createCanvas(360,360);};p.draw=()=>{p.background(10,10,10,30);p.translate(180,180);for(let i=0;i<6;i++){const pulse=p.sin(p.frameCount*0.05+i*0.8),r=p.map(pulse,-1,1,20,140/(i+1)*2),c=pal[i%6];if(i<2){p.fill(c[0],c[1],c[2],180);p.noStroke();}else{p.noFill();p.stroke(c[0],c[1],c[2]);p.strokeWeight(2);}p.ellipse(0,0,r*2,r*2);}const step=p.TWO_PI/24,rot=p.frameCount*0.01;for(let i=0;i<24;i++){const a=i*step+rot,c=pal[i%6];p.stroke(c[0],c[1],c[2],55);p.strokeWeight(1);p.line(0,0,p.cos(a)*160,p.sin(a)*160);}};}
+  },
+  { ph:3,n:10, title:"AI Debugging + Feature Extension", sub:"Read the Error → Explain to AI → Fix → Understand",
+    tags:["console","ReferenceError","TypeError","undefined","debugging"],
+    steps:{
+      concept:{t:"Reading Error Messages",b:"Errors are precise clues. <em>ReferenceError: x is not defined</em> means you used a variable before declaring it. Copy error + code → paste to AI → ask: 'Why does this error occur and how do I fix it?'"},
+      culture:{t:"Dancheong × K-POP Fusion",b:"The most exciting Korean art fuses tradition with modernity — Dancheong geometric grids animated to K-POP rhythms. This visualizer combines the repeating grid from L4 with the pulsing animation from L9."},
+      practice:{t:"Intentional Bug Hunt",b:"The code below has three deliberate bugs. Open the browser console (F12), read each error, then ask AI to explain the cause and fix for each one."},
+      ai:{t:"Describe Your Bug to AI Precisely",b:'Template: <em>"My p5.js gives: [paste error]. Code: [paste code]. What causes this and how do I fix it? Explain the fix and add a comment."</em>'}
+    },
+    prompt:'"p5.js: combine Dancheong grid pattern with pulsing animation. Each cell 70px contains a circle that pulses with sin(frameCount * 0.05 + i + j). Cells rotate slowly. Dark background. Dancheong colours. Add comments."',
+    task:"<strong>Bug Hunt — use F12 console to find 3 bugs.</strong> For each: copy the error → paste to AI → ask for explanation → fix it → document in a comment.",
+    code:`<span class="cmt">// Lesson 10 · Debugging — Dancheong × K-POP Fusion</span>
+<span class="cmt">// 🐛 3 intentional bugs below — find them with F12!</span>
+
+<span class="kw">let</span> <span class="var">palette</span>=[[<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>],[<span class="num">26</span>,<span class="num">82</span>,<span class="num">118</span>],[<span class="num">30</span>,<span class="num">132</span>,<span class="num">73</span>],[<span class="num">212</span>,<span class="num">172</span>,<span class="num">13</span>]];
+<span class="kw">let</span> <span class="var">cellSize</span>=<span class="num">80</span>, <span class="var">speed</span>=<span class="num">0.05</span>;
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">400</span>); }
+
+<span class="kw">function</span> <span class="fn">draw</span>() {
+  background(<span class="num">12</span>,<span class="num">12</span>,<span class="num">12</span>);
+  <span class="kw">let</span> <span class="var">cols</span>=width/<span class="var">cellSize</span>, <span class="var">rows</span>=height/<span class="var">cellSize</span>;
+  <span class="kw">for</span>(<span class="kw">let</span> <span class="var">i</span>=<span class="num">0</span>;<span class="var">i</span>&lt;<span class="var">rows</span>;<span class="var">i</span>++) {
+    <span class="kw">for</span>(<span class="kw">let</span> <span class="var">j</span>=<span class="num">0</span>;<span class="var">j</span>&lt;<span class="var">cols</span>;<span class="var">j</span>++) {
+      <span class="kw">let</span> <span class="var">x</span>=<span class="var">j</span>*<span class="var">cellSize</span>+<span class="var">cellSize</span>/<span class="num">2</span>;
+      <span class="kw">let</span> <span class="var">y</span>=<span class="var">i</span>*<span class="var">cellSize</span>+<span class="var">cellSize</span>/<span class="num">2</span>;
+      <span class="kw">let</span> <span class="var">r</span>=map(sin(frameCount*<span class="var">speed</span>+<span class="var">i</span>+<span class="var">j</span>),-<span class="num">1</span>,<span class="num">1</span>,<span class="num">8</span>,<span class="var">cellSize</span>/<span class="num">2</span>-<span class="num">4</span>);
+      <span class="kw">let</span> <span class="var">c</span>=<span class="var">pallete</span>[(<span class="var">i</span>+<span class="var">j</span>)%<span class="var">palette</span>.length]; <span class="cmt">// 🐛 Bug 1</span>
+      push(); translate(<span class="var">x</span>,<span class="var">y</span>); rotate(frameCount*<span class="num">0.005</span>*(<span class="var">i</span>+<span class="var">j</span>));
+      fill(<span class="var">c</span>[<span class="num">0</span>],<span class="var">c</span>[<span class="num">1</span>],<span class="var">c</span>[<span class="num">2</span>],<span class="num">180</span>); noStroke();
+      ellipse(<span class="num">0</span>,<span class="num">0</span>,<span class="var">r</span>*<span class="num">2</span>);           <span class="cmt">// 🐛 Bug 2</span>
+      fill(<span class="num">12</span>,<span class="num">12</span>,<span class="num">12</span>); ellipse(<span class="num">0</span>,<span class="num">0</span>,<span class="var">r</span>,<span class="var">r</span>);
+      pop;                           <span class="cmt">// 🐛 Bug 3</span>
+    }
+  }
+}
+<span class="cmt">// Answers: 1) pallete→palette  2) ellipse needs 4 args  3) pop→pop()</span>`,
+    sk:p=>{const pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13]];const cs=55,sp=0.05;p.setup=()=>{p.createCanvas(360,360);};p.draw=()=>{p.background(12,12,12);const cols=Math.floor(p.width/cs),rows=Math.floor(p.height/cs);for(let i=0;i<rows;i++)for(let j=0;j<cols;j++){const x=j*cs+cs/2,y=i*cs+cs/2,pulse=p.sin(p.frameCount*sp+i+j),r=p.map(pulse,-1,1,6,cs/2-3),c=pal[(i+j)%4];p.push();p.translate(x,y);p.rotate(p.frameCount*0.005*(i+j));p.fill(c[0],c[1],c[2],180);p.noStroke();p.ellipse(0,0,r*2,r*2);p.fill(12,12,12);p.ellipse(0,0,r,r);p.pop();}};}
+  },
+  { ph:3,n:11, title:"Free Project", sub:"Your Own Korean Culture App — Plan first, then build",
+    tags:["project","planning","creativity","all concepts","portfolio"],
+    steps:{
+      concept:{t:"Project = Plan → Break Down → Build",b:"Good projects start on paper, not in the code editor. Answer: What does it look like? What data do I need? What interaction? What function will I write? Then code. AI is your assistant — you are the designer."},
+      culture:{t:"Choose Your Korean Culture Theme",b:"<strong>A)</strong> Dancheong Pattern Generator. <strong>B)</strong> Korean Name Card Maker. <strong>C)</strong> K-POP Visualizer — your own design. <strong>D)</strong> Obangsaek Colour Explorer."},
+      practice:{t:"30-Minute Build Sprint",b:"5 min plan → 15 min core feature → 5 min AI for one stuck thing → 5 min polish. Minimum viable: one screen + one interaction + one Korean cultural element."},
+      ai:{t:"AI as Assistant, Not Author",b:'Use AI for specific stuck moments only. Template: <em>"Help me add one feature. My code: [paste]. I want to add: [one specific thing]. Only add that feature. Explain every new line."</em>'}
+    },
+    prompt:'"Help me add one feature to my project. My code: [paste]. I want to add: [one specific thing only]. Only add that feature. Do not change anything else. Explain every new line with a comment."',
+    task:"<strong>Project checklist:</strong> ① Uses an array ② Has a function you wrote ③ Has interaction ④ Shows Korean cultural visual ⑤ You can explain every line.",
+    code:`<span class="cmt">// Lesson 11 · Free Project — Your Korean Culture App</span>
+<span class="cmt">// ── STARTER TEMPLATE ─────────────────────────────</span>
+<span class="cmt">//</span>
+<span class="cmt">// PROJECT OPTIONS:</span>
+<span class="cmt">//   A) Dancheong Pattern Generator</span>
+<span class="cmt">//   B) Korean Name Card Maker</span>
+<span class="cmt">//   C) K-POP Visualizer (your own design)</span>
+<span class="cmt">//   D) Obangsaek Colour Explorer</span>
+<span class="cmt">//</span>
+<span class="cmt">// PLAN (answer before coding):</span>
+<span class="cmt">//   1. What does it look like? (sketch on paper)</span>
+<span class="cmt">//   2. What DATA? (array? object? what properties?)</span>
+<span class="cmt">//   3. What INTERACTION? (mouse? keyboard?)</span>
+<span class="cmt">//   4. What FUNCTION will I write myself?</span>
+
+<span class="kw">let</span> <span class="var">myData</span>  = [];  <span class="cmt">// your array</span>
+<span class="kw">let</span> <span class="var">myState</span> = <span class="num">0</span>;   <span class="cmt">// your state variable</span>
+
+<span class="kw">function</span> <span class="fn">setup</span>() { createCanvas(<span class="num">400</span>,<span class="num">400</span>); }
+<span class="kw">function</span> <span class="fn">draw</span>()  { background(<span class="num">20</span>,<span class="num">20</span>,<span class="num">20</span>); <span class="fn">myMain</span>(); }
+
+<span class="kw">function</span> <span class="fn">myMain</span>() {
+  <span class="cmt">// Step 1: ...</span>
+  <span class="cmt">// Step 2: ...</span>
+  <span class="cmt">// Step 3: ...</span>
+}
+<span class="kw">function</span> <span class="fn">mousePressed</span>() { <span class="cmt">// your interaction</span> }
+
+<span class="cmt">// CHECKLIST:</span>
+<span class="cmt">// ☐ Uses an array</span>
+<span class="cmt">// ☐ Has a function I wrote myself</span>
+<span class="cmt">// ☐ Mouse or keyboard interaction works</span>
+<span class="cmt">// ☐ Shows Korean cultural visual or text</span>
+<span class="cmt">// ☐ I can explain every line without AI</span>`,
+    sk:p=>{let t=0;const pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13]];p.setup=()=>{p.createCanvas(360,360);p.textAlign(p.CENTER,p.CENTER);};p.draw=()=>{p.background(20,20,20);t++;p.fill(150);p.noStroke();p.textSize(16);p.text("Your project canvas",180,55);p.fill(80);p.textSize(11);p.text("Click anywhere for inspiration",180,330);for(let i=0;i<4;i++){const a=t*0.012+i*(p.TWO_PI/4),r=p.map(p.sin(t*0.04+i),-1,1,70,100),x=180+p.cos(a)*r,y=185+p.sin(a)*r,c=pal[i];p.fill(c[0],c[1],c[2],190);p.ellipse(x,y,38,38);}};p.mousePressed=()=>{t+=60;};}
+  },
+  { ph:3,n:12, title:"Demo Day + Retrospective", sub:"Share Your Work — Explain your code, reflect on AI",
+    tags:["presentation","retrospective","portfolio","reflection","next steps"],
+    steps:{
+      concept:{t:"Explaining Code = Deepest Understanding",b:"If you can explain your code to someone else in plain language, you truly understand it. Template: 'This variable stores… This function does… This loop repeats because… This condition checks…'"},
+      culture:{t:"Korean Culture Through Code",b:"You began with Dancheong circles and ended with your own creative app. Like a temple painter who learns each technique separately before composing a full mural, you have learned each concept and can now combine them freely."},
+      practice:{t:"2-Minute Demo + Explanation",b:"1 min — live demo. 1 min — explain one variable, one function, and one loop in your code. The goal is clear articulation, not perfection."},
+      ai:{t:"Vibe Coding Retrospective",b:"Answer: ① What did AI help you do faster? ② What did AI get wrong that you fixed? ③ Which concept did you understand better because of AI code? ④ What will you build next?"}
+    },
+    prompt:'"Review my p5.js project: [paste code]. 1) List every concept used. 2) Suggest one specific improvement. 3) What should I build next to keep learning?"',
+    task:"<strong>Final reflection:</strong> paste your code to AI — ask it to name every concept used. Ask: 'What would a professional do differently?' Write what you will build next.",
+    code:`<span class="cmt">// Lesson 12 · Demo Day + Retrospective</span>
+
+<span class="cmt">// ── PRESENTATION SCRIPT ──────────────────────────</span>
+<span class="cmt">//</span>
+<span class="cmt">// "My project is called: _______________</span>
+<span class="cmt">//  It shows: __________________________</span>
+<span class="cmt">//  The DATA I stored: _________________</span>
+<span class="cmt">//  The FUNCTION I wrote: _______________</span>
+<span class="cmt">//  The LOOP in my code: ________________</span>
+<span class="cmt">//  The CONDITION I check: ______________</span>
+<span class="cmt">//  I used AI to: _______________________</span>
+<span class="cmt">//  AI got this wrong: __________________</span>
+<span class="cmt">//  Next I want to build: _______________"</span>
+
+<span class="cmt">// CONCEPT CHECKLIST:</span>
+<span class="cmt">// ✅ Sequential execution</span>
+<span class="cmt">// ✅ Comments</span>
+<span class="cmt">// ✅ Variables</span>
+<span class="cmt">// ✅ Conditionals (if / else)</span>
+<span class="cmt">// ✅ For loops</span>
+<span class="cmt">// ✅ Functions</span>
+<span class="cmt">// ✅ Arrays</span>
+<span class="cmt">// ✅ Objects</span>
+
+<span class="cmt">// RETROSPECTIVE:</span>
+<span class="cmt">// AI saved time on: ___________________</span>
+<span class="cmt">// AI made a mistake on: _______________</span>
+<span class="cmt">// I understood ___ better via AI code</span>
+<span class="cmt">// My next project: ____________________</span>
+
+<span class="cmt">// Congratulations — course complete!</span>`,
+    sk:p=>{let t=0;const chars=['단','청','한','글','사','랑'],pal=[[192,57,43],[26,82,118],[30,132,73],[212,172,13],[100,50,160],[180,90,20]];p.setup=()=>{p.createCanvas(360,360);p.textAlign(p.CENTER,p.CENTER);};p.draw=()=>{p.background(20,20,20);t++;for(let i=0;i<chars.length;i++){const a=t*0.009+i*(p.TWO_PI/chars.length),r=p.map(p.sin(t*0.03+i),-1,1,88,128),x=180+p.cos(a)*r,y=180+p.sin(a)*r,c=pal[i],sz=p.map(p.sin(t*0.05+i),-1,1,17,28);p.fill(c[0],c[1],c[2]);p.noStroke();p.textSize(sz);p.text(chars[i],x,y);}p.fill(245,240,232);p.textSize(13);p.text("Congratulations!",180,178);p.fill(120);p.textSize(10);p.text("Course complete",180,198);};}
+  },
+];
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let currentLesson = 0;
+let currentMode   = 'lesson'; // 'lesson' | 'guide'
+let p5Instance    = null;
+
+const PHASE_COLOR = {1:'#e74c3c',2:'#5dade2',3:'#2ecc71'};
+const PHASE_LABEL = {1:'Phase 1 · Dancheong',2:'Phase 2 · Hangeul',3:'Phase 3 · K-POP + AI'};
+
+// ════════════════════════════════════════════════
+//  SIDEBAR
+// ════════════════════════════════════════════════
+function buildSidebar() {
+  const groups = [
+    {label:'Phase 1 · Dancheong',  range:[0,4],  ph:1},
+    {label:'Phase 2 · Hangeul',    range:[4,8],  ph:2},
+    {label:'Phase 3 · K-POP + AI', range:[8,12], ph:3},
+  ];
+  let html = '';
+  groups.forEach(g => {
+    html += `<div class="sb-lbl">${g.label}</div>`;
+    for (let i = g.range[0]; i < g.range[1]; i++) {
+      const l = LL[i];
+      const isActive = currentMode==='lesson' && i===currentLesson;
+      html += `<button class="lbtn p${l.ph} ${isActive?'active':''}" onclick="selectLesson(${i})">
+        <span class="lnum">${l.n}</span><span>${l.title}</span>
+      </button>`;
+    }
+  });
+  html += `<div class="sb-div"></div>
+    <div class="sb-lbl">AI Prompt Guide</div>
+    <button class="lbtn pg ${currentMode==='guide'?'gactive':''}" onclick="openGuide()">
+      <span class="lnum">🤖</span><span>AI Prompt Guide</span>
+    </button>`;
+  document.getElementById('sb').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
+//  LESSON RENDER
+// ════════════════════════════════════════════════
+function renderLesson(idx) {
+  const l   = LL[idx];
+  const col = PHASE_COLOR[l.ph];
+  const lbl = PHASE_LABEL[l.ph];
+  const main = document.getElementById('main');
+
+  // Remove old lesson panels + guide, keep guide-panel div intact
+  main.querySelectorAll('.lpanel').forEach(el => el.remove());
+  document.getElementById('guide-panel').classList.remove('active');
+
+  const div = document.createElement('div');
+  div.className = 'lpanel active';
+  div.id = `lp${idx}`;
+  div.innerHTML = `
+    <div class="lhdr">
+      <div class="lmeta">
+        <span class="badge" style="background:${col}1a;color:${col}">${lbl}</span>
+        <span class="badge" style="background:#ffffff0d;color:#555">Lesson ${l.n} / 12</span>
+      </div>
+      <h2 class="ltitle">L${l.n}. ${l.title}</h2>
+      <p class="lsub">${l.sub}</p>
+      <div class="tags">${l.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+
+    <div class="steps">
+      <div class="scard concept"><div class="slbl">📖 Concept</div><h4>${l.steps.concept.t}</h4><p>${l.steps.concept.b}</p></div>
+      <div class="scard culture"><div class="slbl">🎨 Korean Culture</div><h4>${l.steps.culture.t}</h4><p>${l.steps.culture.b}</p></div>
+      <div class="scard practice"><div class="slbl">💻 Practice</div><h4>${l.steps.practice.t}</h4><p>${l.steps.practice.b}</p></div>
+      <div class="scard ai"><div class="slbl">🤖 AI · Vibe Coding</div><h4>${l.steps.ai.t}</h4><p>${l.steps.ai.b}</p></div>
+    </div>
+
+    ${l.realworld ? `
+    <div class="rwsec">
+      <div class="stitle">🌍 Sequential Execution in Real Life — Break a task into steps, run them in order</div>
+      <div class="rw-grid">
+        ${l.realworld.map(rw => `
+          <div class="rw-card">
+            <span class="rw-icon">${rw.icon}</span>
+            <div class="rw-title">${rw.title}</div>
+            <ul class="rw-steps">
+              ${rw.steps.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+            <div class="rw-question">❓ ${rw.q}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="prevsec">
+      <div class="stitle">Live Preview</div>
+      <div class="prevbox">
+        <div class="prevhdr">
+          <span class="prevlbl">p5.js canvas — Lesson ${l.n}</span>
+          <button class="runbtn" onclick="rerun(${idx})">▶ Run</button>
+        </div>
+        <div class="prevcvs"><div id="p5c"></div></div>
+      </div>
+    </div>
+
+    <div class="codesec">
+      <div class="stitle">Example Code</div>
+      <div class="codeblk">
+        <div class="codehdr">
+          <span class="fname">sketch_lesson${l.n}.js</span>
+          <button class="cbtn" onclick="copyCode(this,${idx})">Copy</button>
+        </div>
+        <pre id="cpre${idx}">${l.code}</pre>
+      </div>
+    </div>
+
+    <div class="aibox">
+      <div class="ailbl">🤖 AI Prompt — copy into Claude or ChatGPT</div>
+      <div class="aiprompt">${l.prompt}</div>
+      <div class="aitask">🎯 <strong>After AI responds:</strong> ${l.task}</div>
+    </div>
+
+    <div class="lnav">
+      <button class="nbtn" onclick="selectLesson(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+      <button class="nbtn primary" onclick="selectLesson(${idx+1})" ${idx===LL.length-1?'disabled':''}>Next Lesson →</button>
+    </div>
+  `;
+  main.insertBefore(div, document.getElementById('guide-panel'));
+  setTimeout(() => runSketch(idx), 120);
+}
+
+// ════════════════════════════════════════════════
+//  SKETCH RUNNER
+// ════════════════════════════════════════════════
+function runSketch(idx) {
+  const c = document.getElementById('p5c');
+  if (!c) return;
+  if (p5Instance) { p5Instance.remove(); p5Instance = null; }
+  if (LL[idx].sk) p5Instance = new p5(LL[idx].sk, c);
+}
+
+function rerun(idx) {
+  if (p5Instance) { p5Instance.remove(); p5Instance = null; }
+  const c = document.getElementById('p5c');
+  if (c && LL[idx].sk) p5Instance = new p5(LL[idx].sk, c);
+}
+
+// ════════════════════════════════════════════════
+//  HEADER UPDATER
+// ════════════════════════════════════════════════
+const HEADER_CONFIG = {
+  // Phase 1 (L1–L4): Dancheong
+  1: { logo:'단청', logoColor:'#e74c3c', title:'Phase 1 · Dancheong', sub:'Temple Colour Art · Sequential Execution · Variables · Conditionals · For Loops' },
+  // Phase 2 (L5–L8): Hangeul
+  2: { logo:'한글', logoColor:'#5dade2', title:'Phase 2 · Hangeul',   sub:'Korean Alphabet · Functions · Arrays · Objects · Integration' },
+  // Phase 3 (L9–L12): K-POP
+  3: { logo:'K-POP', logoColor:'#2ecc71', title:'Phase 3 · K-POP + AI', sub:'Vibe Coding · Debugging · Free Project · Demo Day' },
+};
+
+const GUIDE_HEADER = {
+  logo:'AI', logoColor:'#b07fd4', title:'AI Prompt Guide', sub:'Vibe Coding Reference · Lesson Prompts · Good vs Bad · Debugging · Project'
+};
+
+function updateHeader(phase, isGuide) {
+  const cfg = isGuide ? GUIDE_HEADER : HEADER_CONFIG[phase];
+  if (!cfg) return;
+  const logo  = document.getElementById('h-logo');
+  const title = document.getElementById('h-title');
+  const sub   = document.getElementById('h-sub');
+  if (!logo || !title || !sub) return;
+
+  // Animate out
+  logo.style.transition  = 'opacity .18s ease';
+  title.style.transition = 'opacity .18s ease';
+  sub.style.transition   = 'opacity .18s ease';
+  logo.style.opacity  = '0';
+  title.style.opacity = '0';
+  sub.style.opacity   = '0';
+
+  setTimeout(() => {
+    logo.textContent  = cfg.logo;
+    logo.style.color  = cfg.logoColor;
+    title.textContent = cfg.title;
+    sub.textContent   = cfg.sub;
+    logo.style.opacity  = '1';
+    title.style.opacity = '1';
+    sub.style.opacity   = '1';
+  }, 180);
+}
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+function selectLesson(idx) {
+  if (idx < 0 || idx >= LL.length) return;
+  currentLesson = idx;
+  currentMode   = 'lesson';
+  buildSidebar();
+  renderLesson(idx);
+  updateHeader(LL[idx].ph, false);
+  window.scrollTo(0, 0);
+}
+
+function openGuide() {
+  currentMode = 'guide';
+  if (p5Instance) { p5Instance.remove(); p5Instance = null; }
+  document.querySelectorAll('.lpanel').forEach(el => el.remove());
+  document.getElementById('guide-panel').classList.add('active');
+  buildSidebar();
+  updateHeader(null, true);
+  window.scrollTo(0, 0);
+}
+
+function jumpPhase(startIdx) { selectLesson(startIdx); }
+
+// ════════════════════════════════════════════════
+//  COPY HELPERS
+// ════════════════════════════════════════════════
+function copyCode(btn, idx) {
+  const pre = document.getElementById(`cpre${idx}`);
+  navigator.clipboard.writeText(pre ? pre.innerText : '').then(() => {
+    btn.textContent = 'Copied!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+function gc(btn, text) {   // guide copy
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+
+// ════════════════════════════════════════════════
+//  GUIDE INNER TABS
+// ════════════════════════════════════════════════
+function gshow(id, btn) {
+  document.querySelectorAll('.gsec').forEach(s => s.classList.remove('show'));
+  document.querySelectorAll('.gtab').forEach(t => {
+    t.classList.remove('g0','ga','gb','gc','gd','ge');
+    t.style.background=''; t.style.borderColor=''; t.style.color='';
+  });
+  document.getElementById(id).classList.add('show');
+  const colors = {g0:'g0',g1:'ga',g2:'gb',g3:'gc',g4:'gd',g5:'ge'};
+  btn.classList.add(colors[id] || 'ga');
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+buildSidebar();
+renderLesson(0);
+updateHeader(LL[0].ph, false);
+</script>
+</body>
+</html>

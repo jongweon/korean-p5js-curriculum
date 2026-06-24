@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher & Student Guide — Korean Culture × p5.js</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;600;700&family=Libre+Franklin:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS ════════════════════════════════════ */
+:root {
+  --red:    #C0392B;
+  --blue:   #1A4A7A;
+  --green:  #1A6B3A;
+  --yellow: #C89B10;
+  --purple: #5B2D8E;
+  --teal:   #0E6674;
+
+  --bg:      #F4EFE6;
+  --paper:   #FDFAF4;
+  --ink:     #1C1814;
+  --ink2:    #3D342A;
+  --dim:     #8A7E72;
+  --border:  #DDD5C8;
+  --border2: #C8BDB0;
+
+  --shadow: 0 2px 16px rgba(28,24,20,.08);
+  --shadow-lg: 0 8px 40px rgba(28,24,20,.14);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Libre Franklin', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ═══ HEADER ════════════════════════════════════ */
+.site-header {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: 0 2px 20px rgba(0,0,0,.25);
+}
+
+.header-inner {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.header-brand {
+  padding: 1rem 1.8rem;
+  border-right: 1px solid rgba(255,255,255,.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-ko {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--paper);
+  line-height: 1;
+  letter-spacing: .02em;
+}
+
+.brand-ko span { color: #e74c3c; }
+
+.brand-en {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  color: rgba(255,255,255,.45);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: .22rem;
+}
+
+.header-nav {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+}
+
+.hnav-btn {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: 0 1.6rem;
+  background: none;
+  border: none;
+  border-right: 1px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.5);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+
+.hnav-btn:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
+
+.hnav-btn.active {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-bottom: 3px solid var(--red);
+}
+
+.hnav-btn.active.t { border-bottom-color: #e74c3c; }
+.hnav-btn.active.s { border-bottom-color: #3498db; }
+
+.hnav-icon { font-size: .9rem; }
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 1.4rem;
+  gap: .6rem;
+}
+
+.print-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .38rem .9rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all .18s;
+  border: 1.5px solid rgba(255,255,255,.25);
+  background: none;
+  color: rgba(255,255,255,.6);
+}
+
+.print-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+/* ═══ PANELS ════════════════════════════════════ */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ═══ TEACHER GUIDE ═════════════════════════════ */
+.tg-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 58px);
+}
+
+/* TG Sidebar */
+.tg-sidebar {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 1.4rem 0;
+  position: sticky;
+  top: 58px;
+  height: calc(100vh - 58px);
+  overflow-y: auto;
+}
+
+.tg-sb-section {
+  padding: .5rem 1.3rem .2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+  margin-top: .5rem;
+}
+
+.tg-sb-btn {
+  width: 100%;
+  padding: .6rem 1.3rem;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: rgba(255,255,255,.5);
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Libre Franklin', sans-serif;
+  font-size: .78rem;
+  transition: all .14s;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.tg-sb-btn:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.85); }
+.tg-sb-btn.active { background: rgba(255,255,255,.09); color: #fff; border-left-color: var(--red); }
+
+.tg-sb-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tg-sb-btn.active .tg-sb-num { background: var(--red); color: #fff; }
+
+/* TG Content */
+.tg-content {
+  padding: 2.2rem 2.8rem;
+  max-width: 900px;
+}
+
+/* Section header */
+.sec-hero {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 6px;
+  padding: 1.8rem 2.2rem;
+  margin-bottom: 1.8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.sec-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--red), var(--yellow), var(--green), var(--blue));
+}
+
+.sec-hero-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+  margin-bottom: .5rem;
+}
+
+.sec-hero h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: .4rem;
+}
+
+.sec-hero p {
+  font-size: .84rem;
+  color: rgba(255,255,255,.65);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* Lesson card */
+.lesson-card {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.lc-header {
+  padding: 1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background .14s;
+}
+
+.lc-header:hover { background: rgba(0,0,0,.025); }
+
+.lc-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.lc-title-wrap { flex: 1; }
+
+.lc-title {
+  font-weight: 600;
+  font-size: .92rem;
+  line-height: 1.3;
+  margin-bottom: .1rem;
+}
+
+.lc-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--dim);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.lc-toggle {
+  font-size: .9rem;
+  color: var(--dim);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+
+.lc-header.open .lc-toggle { transform: rotate(180deg); }
+
+.lc-body {
+  display: none;
+  border-top: 1.5px solid var(--border);
+  padding: 1.4rem;
+}
+
+.lc-body.open { display: block; }
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 1.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: .55rem;
+  top: .5rem;
+  bottom: .5rem;
+  width: 2px;
+  background: var(--border);
+}
+
+.tl-item {
+  position: relative;
+  margin-bottom: .9rem;
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -1.24rem;
+  top: .38rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: 2px solid var(--paper);
+}
+
+.tl-item.highlight::before { background: var(--red); }
+.tl-item.ai-step::before   { background: var(--purple); }
+.tl-item.culture::before   { background: var(--yellow); }
+.tl-item.practice::before  { background: var(--green); }
+
+.tl-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .06em;
+  margin-bottom: .12rem;
+}
+
+.tl-content { font-size: .81rem; line-height: 1.55; color: var(--ink2); }
+.tl-content strong { color: var(--ink); font-weight: 600; }
+.tl-content em { color: var(--purple); font-style: normal; font-weight: 500; }
+
+/* Q&A block */
+.qa-block {
+  background: #FFF8F0;
+  border: 1.5px solid #F0DFC0;
+  border-left: 4px solid var(--yellow);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  margin-bottom: .85rem;
+}
+
+.qa-q {
+  font-weight: 600;
+  font-size: .82rem;
+  color: var(--ink);
+  margin-bottom: .45rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+}
+
+.qa-q-icon { color: var(--yellow); flex-shrink: 0; }
+
+.qa-a {
+  font-size: .79rem;
+  line-height: 1.6;
+  color: var(--ink2);
+  padding-left: 1.3rem;
+}
+
+.qa-a code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  background: #FCEBD0;
+  padding: .02rem .28rem;
+  border-radius: 3px;
+  color: #8B4400;
+}
+
+/* Tip box */
+.tip-box {
+  background: #F0F7F0;
+  border: 1.5px solid #C0DCC0;
+  border-left: 4px solid var(--green);
+  border-radius: 4px;
+  padding: .85rem 1.1rem;
+  margin-bottom: .85rem;
+  font-size: .79rem;
+  line-height: 1.6;
+  color: var(--ink2);
+}
+
+.tip-box strong { color: var(--green); }
+
+.warn-box {
+  background: #FDF0F0;
+  border: 1.5px solid #E0C0C0;
+  border-left: 4px solid var(--red);
+  border-radius: 4px;
+  padding: .85rem 1.1rem;
+  margin-bottom: .85rem;
+  font-size: .79rem;
+  line-height: 1.6;
+  color: var(--ink2);
+}
+
+.warn-box strong { color: var(--red); }
+
+/* Info grid */
+.info-grid {
+  display: grid;
+  gap: .85rem;
+  margin-bottom: 1.2rem;
+}
+
+.ig2 { grid-template-columns: repeat(2, 1fr); }
+.ig3 { grid-template-columns: repeat(3, 1fr); }
+
+.info-card {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.info-card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
+
+.info-card h4 { font-size: .86rem; font-weight: 600; margin-bottom: .35rem; }
+.info-card p  { font-size: .77rem; line-height: 1.58; color: var(--ink2); }
+
+/* Script block */
+.script-block {
+  background: var(--ink);
+  border-radius: 5px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: .85rem;
+}
+
+.script-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-bottom: .4rem;
+}
+
+.script-text {
+  font-size: .8rem;
+  line-height: 1.7;
+  color: rgba(255,255,255,.82);
+  font-style: italic;
+}
+
+.script-text strong { color: #FFD97D; font-style: normal; }
+.script-text em     { color: #A8E6A3; }
+
+/* Section divider */
+.sec-divider {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 1.6rem 0 .9rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.sec-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* Checklist */
+.check-list { list-style: none; margin-bottom: .85rem; }
+.check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  font-size: .8rem;
+  line-height: 1.55;
+  color: var(--ink2);
+  padding: .28rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.check-list li:last-child { border-bottom: none; }
+.check-list li::before {
+  content: '☐';
+  font-size: .85rem;
+  color: var(--dim);
+  flex-shrink: 0;
+  margin-top: .05rem;
+}
+
+/* Phase badge */
+.phase-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .2rem .55rem;
+  border-radius: 3px;
+  margin-right: .35rem;
+  margin-bottom: .35rem;
+}
+
+/* ═══ STUDENT SETUP GUIDE ═══════════════════════ */
+.sg-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2.2rem 2rem;
+}
+
+/* Step card */
+.setup-step {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 1.4rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.ss-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.ss-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(255,255,255,.15);
+  flex-shrink: 0;
+  width: 52px;
+}
+
+.ss-title-wrap { flex: 1; }
+
+.ss-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: .15rem;
+}
+
+.ss-sub {
+  font-size: .74rem;
+  color: rgba(255,255,255,.5);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .05em;
+}
+
+.ss-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  letter-spacing: .08em;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ss-body { padding: 1.4rem 1.5rem; }
+
+/* Sub steps */
+.sub-step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  align-items: flex-start;
+}
+
+.sub-step:last-child { margin-bottom: 0; }
+
+.sub-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: .1rem;
+  color: #fff;
+}
+
+.sub-content { flex: 1; }
+
+.sub-content h4 {
+  font-size: .86rem;
+  font-weight: 600;
+  margin-bottom: .28rem;
+  color: var(--ink);
+}
+
+.sub-content p {
+  font-size: .78rem;
+  line-height: 1.58;
+  color: var(--ink2);
+}
+
+.sub-content p code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .71rem;
+  background: #EEE8DC;
+  padding: .02rem .28rem;
+  border-radius: 3px;
+  color: #8B4400;
+}
+
+/* URL pill */
+.url-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .3rem .75rem;
+  border-radius: 3px;
+  margin: .3rem 0;
+  text-decoration: none;
+  transition: all .15s;
+  cursor: pointer;
+  border: none;
+}
+
+/* Screen layout diagram */
+.screen-diagram {
+  background: #1A1A1A;
+  border-radius: 6px;
+  padding: 1.2rem;
+  margin: .8rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+}
+
+.screen-row {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: .5rem;
+}
+
+.screen-row:last-child { margin-bottom: 0; }
+
+.screen-pane {
+  flex: 1;
+  border-radius: 4px;
+  padding: .7rem .8rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-size: .6rem;
+}
+
+/* Trouble card */
+.trouble-card {
+  background: #FFF8F0;
+  border: 1.5px solid #F0DFC0;
+  border-radius: 5px;
+  padding: 1rem 1.2rem;
+  margin-bottom: .75rem;
+}
+
+.trouble-q {
+  font-weight: 600;
+  font-size: .82rem;
+  color: var(--ink);
+  margin-bottom: .38rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+}
+
+.trouble-a {
+  font-size: .78rem;
+  line-height: 1.58;
+  color: var(--ink2);
+  padding-left: 1.3rem;
+}
+
+.trouble-a code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .71rem;
+  background: #FCEBD0;
+  padding: .02rem .26rem;
+  border-radius: 3px;
+  color: #8B4400;
+}
+
+/* ═══ SHARED UTILS ══════════════════════════════ */
+.tag-row { display: flex; flex-wrap: wrap; gap: .35rem; margin: .5rem 0; }
+.mini-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  padding: .12rem .42rem;
+  border-radius: 2px;
+  background: var(--border);
+  color: var(--dim);
+}
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+/* ═══ SCROLLBAR ═════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ═══ PRINT ═════════════════════════════════════ */
+@media print {
+  .site-header, .tg-sidebar { display: none !important; }
+  .tg-layout { grid-template-columns: 1fr; }
+  .tg-content, .sg-wrap { padding: .5cm; max-width: none; }
+  .panel { display: block !important; }
+  .lesson-card { break-inside: avoid; }
+  .lc-body { display: block !important; }
+  .setup-step { break-inside: avoid; }
+}
+
+/* ═══ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 800px) {
+  .tg-layout { grid-template-columns: 1fr; }
+  .tg-sidebar { display: none; }
+  .tg-content, .sg-wrap { padding: 1.2rem; }
+  .ig2, .ig3, .two-col { grid-template-columns: 1fr; }
+  .header-nav { overflow-x: auto; }
+  .hnav-btn { padding: 0 1rem; font-size: .6rem; }
+  .header-actions { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ HEADER ════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="brand-ko">단청 <span>×</span> p5.js</div>
+      <div class="brand-en">12-Hour Curriculum</div>
+    </div>
+    <nav class="header-nav">
+      <button class="hnav-btn t active" onclick="showPanel('teacher', this)">
+        <span class="hnav-icon">📋</span> Teacher Guide
+      </button>
+      <button class="hnav-btn s" onclick="showPanel('student', this)">
+        <span class="hnav-icon">🖥️</span> Student Setup Guide
+      </button>
+    </nav>
+    <div class="header-actions">
+      <button class="print-btn" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════
+     PANEL A · TEACHER GUIDE
+══════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-teacher">
+<div class="tg-layout">
+
+  <!-- Sidebar -->
+  <aside class="tg-sidebar" id="tg-sb"></aside>
+
+  <!-- Content -->
+  <div class="tg-content" id="tg-content">
+    <!-- injected by JS -->
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PANEL B · STUDENT SETUP GUIDE
+══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-student">
+<div class="sg-wrap">
+
+  <!-- Hero -->
+  <div class="sec-hero" style="margin-bottom:2rem">
+    <div class="sec-hero-tag">Student Setup Guide · Before Your First Class</div>
+    <h2>Get Ready to Code</h2>
+    <p>Follow these steps before Lesson 1 starts. Total setup time: about 15 minutes. You will need a laptop or desktop computer and a stable internet connection.</p>
+  </div>
+
+  <!-- ── STEP 1: Browser ─────────────────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#1A4A7A">
+      <div class="ss-num">1</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Use Google Chrome</div>
+        <div class="ss-sub">Required browser for all tools in this course</div>
+      </div>
+      <div class="ss-time">2 min</div>
+    </div>
+    <div class="ss-body">
+      <div class="sub-step">
+        <div class="sub-num" style="background:#1A4A7A">1</div>
+        <div class="sub-content">
+          <h4>Download and install Chrome</h4>
+          <p>Go to <code>google.com/chrome</code> and download the browser if you don't have it. All tools in this course work best in Chrome.</p>
+          <button class="url-pill" style="background:#1A4A7A18;color:#1A4A7A;border:1.5px solid #1A4A7A44" onclick="window.open('https://google.com/chrome','_blank')">→ google.com/chrome</button>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#1A4A7A">2</div>
+        <div class="sub-content">
+          <h4>Learn to open the Developer Console</h4>
+          <p>You will use this to read error messages. Press <code>F12</code> (Windows) or <code>Cmd + Option + J</code> (Mac). Click the <strong>Console</strong> tab. You will need this from Lesson 10 onward.</p>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>Why Chrome?</strong> The p5.js Web Editor and Claude.ai both work best in Chrome. Using a different browser may cause unexpected errors during class.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: p5.js Web Editor ───────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#C0392B">
+      <div class="ss-num">2</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Create a p5.js Web Editor Account</div>
+        <div class="ss-sub">Where you will write and run all your code</div>
+      </div>
+      <div class="ss-time">5 min</div>
+    </div>
+    <div class="ss-body">
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C0392B">1</div>
+        <div class="sub-content">
+          <h4>Go to the p5.js Web Editor</h4>
+          <p>Open a new Chrome tab and go to the address below. This is your coding environment — no installation needed.</p>
+          <button class="url-pill" style="background:#C0392B18;color:#C0392B;border:1.5px solid #C0392B44" onclick="window.open('https://editor.p5js.org','_blank')">→ editor.p5js.org</button>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C0392B">2</div>
+        <div class="sub-content">
+          <h4>Click "Sign Up" and create a free account</h4>
+          <p>Use your school email address. Choose a simple username you can remember. You do NOT need a paid plan — the free account has everything you need.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C0392B">3</div>
+        <div class="sub-content">
+          <h4>Run your first sketch — confirm it works</h4>
+          <p>After signing in, press the <strong>▶ Play</strong> button. You should see a grey square appear on the right. If you see it, your editor is working correctly.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C0392B">4</div>
+        <div class="sub-content">
+          <h4>Enable Auto-save</h4>
+          <p>Click <strong>File → Auto-save</strong> to turn it on. This prevents losing your work.</p>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>Important:</strong> Always stay signed in during class. If you close the browser without saving, your sketch will be lost. Use <code>Ctrl+S</code> (Win) or <code>Cmd+S</code> (Mac) to save manually at any time.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Claude.ai ───────────────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#5B2D8E">
+      <div class="ss-num">3</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Access Claude.ai (AI Assistant)</div>
+        <div class="ss-sub">Your AI coding partner for vibe coding exercises</div>
+      </div>
+      <div class="ss-time">3 min</div>
+    </div>
+    <div class="ss-body">
+      <div class="sub-step">
+        <div class="sub-num" style="background:#5B2D8E">1</div>
+        <div class="sub-content">
+          <h4>Open Claude.ai in a new tab</h4>
+          <p>Go to the address below. Claude is the AI assistant you will use to generate, debug, and improve p5.js code throughout the course.</p>
+          <button class="url-pill" style="background:#5B2D8E18;color:#5B2D8E;border:1.5px solid #5B2D8E44" onclick="window.open('https://claude.ai','_blank')">→ claude.ai</button>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#5B2D8E">2</div>
+        <div class="sub-content">
+          <h4>Create a free account</h4>
+          <p>Sign up with your school email. The free plan gives you enough messages for all 12 lessons. If Claude is unavailable, ChatGPT (<code>chat.openai.com</code>) works as an alternative.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#5B2D8E">3</div>
+        <div class="sub-content">
+          <h4>Send a test message to confirm it works</h4>
+          <p>Type: <code>Hello! I am going to use you to help me write p5.js code. Please respond in English.</code> — If Claude replies, you are ready.</p>
+        </div>
+      </div>
+      <div class="warn-box">
+        <strong>AI is a tool, not a shortcut.</strong> Always read every line of code that AI gives you before pasting it into your editor. You must be able to explain every line at Demo Day (Lesson 12).
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Curriculum Web App ────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#1A6B3A">
+      <div class="ss-num">4</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Open the Curriculum Web App</div>
+        <div class="ss-sub">Your lesson guide, code examples, and AI prompts — all in one place</div>
+      </div>
+      <div class="ss-time">2 min</div>
+    </div>
+    <div class="ss-body">
+      <div class="sub-step">
+        <div class="sub-num" style="background:#1A6B3A">1</div>
+        <div class="sub-content">
+          <h4>Open the curriculum app in a new tab</h4>
+          <p>Your teacher will share the link. Bookmark it so you can find it quickly at the start of every lesson.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#1A6B3A">2</div>
+        <div class="sub-content">
+          <h4>Click on Lesson 1 in the sidebar</h4>
+          <p>Check that you can see the lesson content, the live p5.js canvas preview, the example code, and the AI prompt box at the bottom of the page.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#1A6B3A">3</div>
+        <div class="sub-content">
+          <h4>Open the AI Prompt Guide tab</h4>
+          <p>Click <strong>🤖 AI Prompt Guide</strong> in the sidebar. This is your reference card for writing good AI prompts throughout the course.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Screen Layout ──────────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#C89B10">
+      <div class="ss-num">5</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Set Up Your Screen Layout</div>
+        <div class="ss-sub">Arrange your 3 tabs side-by-side for the best workflow</div>
+      </div>
+      <div class="ss-time">3 min</div>
+    </div>
+    <div class="ss-body">
+      <p style="font-size:.8rem;color:var(--ink2);margin-bottom:.7rem">The ideal setup has three windows visible at the same time:</p>
+      <div class="screen-diagram">
+        <div class="screen-row">
+          <div class="screen-pane" style="background:#1A4A7A22;color:#5dade2;border:1.5px solid #1A4A7A44;flex:1.2">
+            📋 Curriculum App<br><span style="font-size:.55rem;opacity:.7;font-weight:400">Lesson guide + AI prompts</span>
+          </div>
+          <div class="screen-pane" style="background:#C0392B22;color:#e74c3c;border:1.5px solid #C0392B44;flex:1.4">
+            ⌨️ p5.js Editor<br><span style="font-size:.55rem;opacity:.7;font-weight:400">Write + run your code</span>
+          </div>
+          <div class="screen-pane" style="background:#5B2D8E22;color:#b07fd4;border:1.5px solid #5B2D8E44;flex:1">
+            🤖 Claude.ai<br><span style="font-size:.55rem;opacity:.7;font-weight:400">AI assistant</span>
+          </div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.55rem;color:rgba(255,255,255,.3);text-align:center;margin-top:.5rem">
+          RECOMMENDED LAYOUT — 3 windows side by side
+        </div>
+      </div>
+      <div class="sub-step" style="margin-top:.8rem">
+        <div class="sub-num" style="background:#C89B10">1</div>
+        <div class="sub-content">
+          <h4>Snap windows side by side (Windows)</h4>
+          <p>Drag each Chrome window to the left or right edge of the screen until it snaps to half-width. Or press <code>Win + ←</code> / <code>Win + →</code>.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C89B10">2</div>
+        <div class="sub-content">
+          <h4>Use Split View (Mac)</h4>
+          <p>Hold the green full-screen button on a window and drag it to the left or right half of the screen. Then select another window for the other half.</p>
+        </div>
+      </div>
+      <div class="sub-step">
+        <div class="sub-num" style="background:#C89B10">3</div>
+        <div class="sub-content">
+          <h4>Minimum: use browser tabs</h4>
+          <p>If split screen isn't possible, keep all three in the same Chrome window and switch between tabs with <code>Ctrl+Tab</code> (Win) or <code>Cmd+Tab</code> (Mac).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 6: Ready Check ────────────────── -->
+  <div class="setup-step">
+    <div class="ss-header" style="background:#0E6674">
+      <div class="ss-num">✓</div>
+      <div class="ss-title-wrap">
+        <div class="ss-title">Ready Check — Before Lesson 1</div>
+        <div class="ss-sub">Confirm all 5 items before your first class begins</div>
+      </div>
+    </div>
+    <div class="ss-body">
+      <ul class="check-list">
+        <li>I am using <strong>Google Chrome</strong></li>
+        <li>I have a <strong>p5.js Web Editor account</strong> and can run a sketch</li>
+        <li>I have a <strong>Claude.ai account</strong> and Claude responds to my test message</li>
+        <li>I have the <strong>curriculum web app</strong> open and bookmarked</li>
+        <li>I can see the <strong>AI Prompt Guide</strong> in the curriculum app</li>
+        <li>My screen shows at least <strong>two windows side by side</strong></li>
+      </ul>
+      <div class="tip-box">
+        <strong>All checked?</strong> You are ready for Lesson 1. Bring your laptop fully charged on the first day. The course moves quickly — a working setup from the start makes a big difference.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Troubleshooting ────────────────────── -->
+  <div class="sec-divider">Common Setup Problems</div>
+
+  <div class="trouble-card">
+    <div class="trouble-q">❓ <span>The p5.js editor shows a blank white page or doesn't load.</span></div>
+    <div class="trouble-a">Try a hard refresh: <code>Ctrl+Shift+R</code> (Win) or <code>Cmd+Shift+R</code> (Mac). If that doesn't work, clear your browser cache: Chrome menu → Settings → Privacy → Clear browsing data.</div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="trouble-q">❓ <span>When I press Play, nothing appears in the preview panel.</span></div>
+    <div class="trouble-a">Check the Console (F12) for red error messages. The most common cause is a typo in the default code. Try deleting all code and typing: <code>function setup() { createCanvas(400,400); }</code> then pressing Play again.</div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="trouble-q">❓ <span>Claude.ai says I've reached my message limit.</span></div>
+    <div class="trouble-a">The free plan has a daily message limit. Use ChatGPT (<code>chat.openai.com</code>) as a backup — it understands p5.js equally well. Always paste the same prompt.</div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="trouble-q">❓ <span>I can't log in to my p5.js account.</span></div>
+    <div class="trouble-a">Use the "Forgot password" link on the login page. If you never received a confirmation email, check your spam folder. As a temporary fix, you can use the editor without logging in — but your sketches won't be saved.</div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="trouble-q">❓ <span>My laptop screen is too small to show three windows.</span></div>
+    <div class="trouble-a">Use two tabs instead: keep the curriculum app and Claude.ai in separate tabs, and use the p5.js editor as your main window. Press <code>Ctrl+Tab</code> to switch quickly. Alternatively, use an external monitor if available.</div>
+  </div>
+
+</div><!-- /sg-wrap -->
+</div><!-- /panel-student -->
+
+
+<script>
+// ════════════════════════════════════════════════
+//  TEACHER GUIDE DATA
+// ════════════════════════════════════════════════
+
+const SECTIONS = [
+  { id:'overview',  label:'Course Overview',     icon:'📌' },
+  { id:'before',    label:'Before Class',         icon:'📦' },
+  { id:'phase1',    label:'Phase 1 · Dancheong',  icon:'🔴' },
+  { id:'phase2',    label:'Phase 2 · Hangeul',    icon:'🟠' },
+  { id:'phase3',    label:'Phase 3 · K-POP + AI', icon:'🟢' },
+  { id:'vibe',      label:'Vibe Coding Tips',     icon:'🤖' },
+  { id:'assessment',label:'Assessment Guide',     icon:'📊' },
+  { id:'faq',       label:'FAQ & Troubleshooting',icon:'🔧' },
+];
+
+const CONTENT = {
+
+  overview: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Overview</div>
+      <h2>Korean Culture × p5.js</h2>
+      <p>A 12-hour coding curriculum for international students. Students learn programming fundamentals through Korean cultural art — Dancheong temple patterns, Hangeul characters, and K-POP visuals — while practicing vibe coding (AI-assisted programming) at every lesson.</p>
+    </div>
+
+    <div class="sec-divider">Curriculum at a Glance</div>
+    <div class="info-grid ig3">
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--red)">Total Hours</div>
+        <h4>12 Hours</h4>
+        <p>12 × 1-hour lessons. Each lesson stands alone and can be delivered in a single session.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--blue)">Target Students</div>
+        <h4>No Prior Coding</h4>
+        <p>Designed for international students with zero programming experience. All examples use English.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--green)">Tools Required</div>
+        <h4>3 Browser Tabs</h4>
+        <p>Curriculum app · p5.js Web Editor · Claude.ai. No installation. Works on any laptop with Chrome.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">The 4-Step Lesson Structure (every lesson)</div>
+    <div class="info-grid ig2">
+      <div class="info-card" style="border-top:3px solid #3498db">
+        <div class="info-card-label" style="color:#3498db">Step 1 · Concept (10 min)</div>
+        <h4>Explain the programming concept</h4>
+        <p>Use the curriculum app's Concept card. One concept per lesson. Demonstrate with a live example. Ask: "what does this remind you of in real life?"</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--yellow)">
+        <div class="info-card-label" style="color:var(--yellow)">Step 2 · Korean Culture (10 min)</div>
+        <h4>Connect to Korean cultural context</h4>
+        <p>Use the Culture card. Show real images where possible. The cultural connection makes the abstract concept memorable and personally meaningful.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--green)">
+        <div class="info-card-label" style="color:var(--green)">Step 3 · Practice (25 min)</div>
+        <h4>Students write and run code</h4>
+        <p>Students copy the example code into the p5.js editor, run it, then complete the challenge at the bottom. Walk the room. Don't fix bugs for students — ask guiding questions instead.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--purple)">
+        <div class="info-card-label" style="color:var(--purple)">Step 4 · AI (15 min)</div>
+        <h4>Vibe coding with the AI prompt</h4>
+        <p>Students copy the AI prompt from the curriculum app into Claude.ai. They read the result, identify the concepts they learned, and modify one thing before moving on.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">Phase Overview</div>
+    <div class="info-grid ig3">
+      <div class="info-card" style="border-left:4px solid var(--red)">
+        <div class="phase-badge" style="background:#C0392B18;color:#C0392B">Phase 1 · L1–L4</div>
+        <h4>Dancheong Temple Art</h4>
+        <p>Sequential execution, variables, conditionals, for loops. Students build repeating geometric patterns inspired by Korean temple paintings.</p>
+      </div>
+      <div class="info-card" style="border-left:4px solid var(--yellow)">
+        <div class="phase-badge" style="background:#C89B1018;color:#C89B10">Phase 2 · L5–L8</div>
+        <h4>Hangeul Characters</h4>
+        <p>Functions, arrays, objects, integration. Students draw Korean consonants with code and build an interactive word flashcard app.</p>
+      </div>
+      <div class="info-card" style="border-left:4px solid var(--green)">
+        <div class="phase-badge" style="background:#1A6B3A18;color:#1A6B3A">Phase 3 · L9–L12</div>
+        <h4>K-POP + Vibe Coding</h4>
+        <p>Full vibe coding workflow, AI debugging, free project, Demo Day. Students build their own Korean culture app with AI as assistant.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">Concept Coverage</div>
+    <div class="info-grid ig2">
+      <div class="info-card">
+        <div class="info-card-label">Programming Concepts</div>
+        <div class="tag-row">
+          <span class="mini-tag">Sequential Execution</span>
+          <span class="mini-tag">Comments</span>
+          <span class="mini-tag">Variables</span>
+          <span class="mini-tag">Conditionals</span>
+          <span class="mini-tag">For Loops</span>
+          <span class="mini-tag">Functions</span>
+          <span class="mini-tag">Arrays</span>
+          <span class="mini-tag">Objects</span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Korean Culture Themes</div>
+        <div class="tag-row">
+          <span class="mini-tag">단청 Dancheong</span>
+          <span class="mini-tag">오방색 Obangsaek</span>
+          <span class="mini-tag">한글 Hangeul</span>
+          <span class="mini-tag">K-POP</span>
+          <span class="mini-tag">방위색 Direction Colours</span>
+          <span class="mini-tag">자음 Consonants</span>
+        </div>
+      </div>
+    </div>
+  `,
+
+  before: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Before Class</div>
+      <h2>Pre-Class Preparation</h2>
+      <p>Complete these steps before your first lesson. Most take only a few minutes, but checking everything in advance prevents technical delays during class time.</p>
+    </div>
+
+    <div class="sec-divider">One Week Before — Teacher Setup</div>
+    <ul class="check-list">
+      <li>Test the curriculum web app on the classroom projector or screen</li>
+      <li>Create a p5.js Web Editor account at <strong>editor.p5js.org</strong></li>
+      <li>Create a Claude.ai account at <strong>claude.ai</strong> and test a p5.js prompt</li>
+      <li>Run every Lesson 1–4 sketch in the curriculum app — confirm previews load</li>
+      <li>Share the Student Setup Guide with all students (send the HTML file or hosted URL)</li>
+      <li>Ask students to complete setup before the first class</li>
+    </ul>
+
+    <div class="sec-divider">Day Before — Classroom Check</div>
+    <ul class="check-list">
+      <li>Confirm classroom computers have Chrome installed and updated</li>
+      <li>Test internet speed — p5.js editor and Claude.ai both require stable connection</li>
+      <li>Open the curriculum app on the teacher's machine and bookmark it</li>
+      <li>Prepare to project: curriculum app on left, p5.js editor on right</li>
+      <li>Print or share the AI Prompt Guide card for students who prefer a physical reference</li>
+    </ul>
+
+    <div class="sec-divider">30 Minutes Before Each Lesson</div>
+
+    <div class="info-grid ig3">
+      <div class="info-card" style="border-top:3px solid var(--red)">
+        <div class="info-card-label" style="color:var(--red)">Open on Projector</div>
+        <p style="font-size:.77rem">Curriculum app at the correct lesson. p5.js editor with the example code pasted in. Claude.ai with a new chat ready.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--blue)">
+        <div class="info-card-label" style="color:var(--blue)">Review the Q&A</div>
+        <p style="font-size:.77rem">Read through the expected student questions for the lesson (see Phase sections). Anticipate where students will get stuck.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--green)">
+        <div class="info-card-label" style="color:var(--green)">Prepare the AI Demo</div>
+        <p style="font-size:.77rem">Copy the lesson's AI prompt. Run it once yourself so you know what output to expect. Prepare one modification to demonstrate live.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">Classroom Arrangement Tips</div>
+    <div class="info-grid ig2">
+      <div class="info-card">
+        <div class="info-card-label">Ideal Setup</div>
+        <p style="font-size:.77rem">Students each have one laptop. Teacher projects from a second screen. 3-tab layout: curriculum app | p5.js editor | Claude.ai. Students can see the teacher's screen clearly from all seats.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Paired Setup</div>
+        <p style="font-size:.77rem">If laptops are scarce, pairs work well. One student drives (types), one navigates (reads the guide and suggests code). Swap roles at the AI step.</p>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <strong>Network dependency:</strong> All three tools require internet access. If your classroom has a firewall, ask your IT team to whitelist <strong>editor.p5js.org</strong>, <strong>claude.ai</strong>, and <strong>cdn.jsdelivr.net</strong> (used by p5.js) before the first lesson.
+    </div>
+  `,
+
+  phase1: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Phase 1 · Lessons 1–4</div>
+      <h2>Dancheong Temple Art</h2>
+      <p>Students learn sequential execution, variables, conditionals, and for loops by creating Dancheong geometric patterns. These four concepts form the foundation of all programming — take time here. Students who understand these well will fly through Phase 2.</p>
+    </div>
+
+    ${lessonCard(1,'#C0392B','Sequential Execution + Comments','Phase 1 · Dancheong','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:10</div>
+          <div class="tl-content"><strong>Hook:</strong> Show a photo of Gyeongbokgung Palace ceiling (Dancheong). Ask: "What do you notice about the colours and order?" Lead into: code is also about order.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:10 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> Open curriculum app Lesson 1. Explain sequential execution with a cooking analogy — you can't frost a cake before baking it. Show how removing <code>noStroke()</code> changes the output.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:30</div>
+          <div class="tl-content"><strong>Culture:</strong> Dancheong painters apply colours in a strict order — base coat, outline, fill, detail. Show the parallel to code: <em>background → fill → ellipse</em>. Ask students to guess what happens if you move <code>background()</code> to line 20.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:30 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Students paste the Lesson 1 code into their editor and press Play. Then they complete the challenge: swap two lines and observe. Walk the room. Key question to ask: "What does this line do? Can you remove it and see?"</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students copy the Lesson 1 prompt into Claude.ai. They read the output and find every comment. Ask: "Which line is most confusing? Ask Claude to explain only that line."</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Why does the background() have to be first? My circles disappear every frame."</div>
+        <div class="qa-a">Excellent observation — this is how animation works. <code>background()</code> paints over everything, then we redraw. Move <code>background()</code> to the end and watch what happens. This is the "trail effect" we use in Lesson 9.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What does <code>noLoop()</code> do? My code doesn't have it but some examples do."</div>
+        <div class="qa-a"><code>draw()</code> runs 60 times per second by default. <code>noLoop()</code> stops it after the first draw. We use it when nothing needs to move. If their sketch needs interaction, they should remove <code>noLoop()</code>.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Can comments be in Korean?"</div>
+        <div class="qa-a">Yes, absolutely. Comments can be in any language. Encourage bilingual comments — English for the concept, Korean for the cultural reference.</div>
+      </div>
+      <div class="tip-box"><strong>Teacher tip:</strong> Swap lines live on the projector. Seeing the circle disappear behind the background is the single most memorable moment in Lesson 1. Do this before students try it themselves.</div>
+    `)}
+
+    ${lessonCard(2,'#1A4A7A','Variables','Phase 1 · Dancheong','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Ask: "If I want to change the size of all 5 circles, how many lines do I need to edit without variables?" Count with them. Then: "With variables — just one line." Type it live.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:18</div>
+          <div class="tl-content"><strong>Concept:</strong> Explain <code>let name = value</code>. Use a physical analogy: a variable is a labelled jar — the label is the name, the contents is the value. You can change the contents without changing the label.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:18 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> Introduce Obangsaek — the five directional colours of Korean tradition. Each colour has a compass direction, an element, and a meaning. Students will store these as variables named after their direction.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Students paste the Lesson 2 code. Challenge: change <code>circleSize</code> and count how many circles update. Then swap <code>southRed</code> and <code>eastBlue</code>. Ask: "What moved?"</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to rename all colour variables. They compare the AI's variable names to their own. Ask: "Are AI's names better or worse than yours? Why?"</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What is the difference between <code>let</code>, <code>const</code>, and <code>var</code>?"</div>
+        <div class="qa-a">Use <code>let</code> for values that change (like circleSize). Use <code>const</code> for values that never change (like the number of colours). Ignore <code>var</code> — it's the old way and causes subtle bugs. For this course, always use <code>let</code>.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Why does <code>color()</code> need to be in <code>setup()</code>?"</div>
+        <div class="qa-a">The <code>color()</code> function only works after the canvas is created. <code>setup()</code> runs first and creates the canvas, so we can safely call <code>color()</code> there. If you put it at the top of the file, p5.js doesn't exist yet.</div>
+      </div>
+      <div class="tip-box"><strong>Teacher tip:</strong> Have students predict the output before running. "If I change <code>circleSize</code> from 100 to 200, what will happen?" This builds the habit of reading code before running it — critical for vibe coding.</div>
+    `)}
+
+    ${lessonCard(3,'#1A6B3A','Conditionals (if / else)','Phase 1 · Dancheong','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Move your mouse across the projector canvas. The circle changes colour. Ask: "How does the code know where the mouse is?" Let students guess before explaining.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:18</div>
+          <div class="tl-content"><strong>Concept:</strong> <code>if (condition) { } else { }</code>. The condition is always true or false — never maybe. Use everyday examples: "If it is raining, take an umbrella. Otherwise, leave it at home."</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:18 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> Temple painters chose a different colour based on which wall (compass direction) they were painting. This is a real-world if/else — <em>if (wall == north) use black</em>. Students map the four quadrants to Obangsaek directions.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Paste Lesson 3. Challenge: add the centre condition (mouseX near 200 and mouseY near 200 → yellow). This requires both conditions with <code>&&</code>.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to add a fifth condition. They find the <code>else if</code> block in the output and explain it to a partner in plain English.</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What does <code>&&</code> mean? And what is <code>||</code>?"</div>
+        <div class="qa-a"><code>&&</code> means AND — both conditions must be true. <code>||</code> means OR — at least one must be true. For the centre condition: mouse is near centre horizontally AND near centre vertically.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Can I have more than four else if blocks?"</div>
+        <div class="qa-a">Yes — as many as you need. But if you have more than 5–6 conditions, an array or object is usually a better solution. We'll learn that in Phase 2.</div>
+      </div>
+      <div class="warn-box"><strong>Common mistake:</strong> Students often forget the curly braces <code>{ }</code> around the block. Remind them: every <code>if</code> needs an opening <code>{</code> and a closing <code>}</code>.</div>
+    `)}
+
+    ${lessonCard(4,'#C89B10','For Loops','Phase 1 · Dancheong','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Show the completed Dancheong grid pattern. Ask: "How many circles are on screen?" (about 49). "How many lines of code?" (about 20). The ratio surprises students — this is the power of loops.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> Trace through <code>for (let i=0; i&lt;5; i++)</code> step by step on the board. i=0, i=1, i=2, i=3, i=4, i=5 → stop. Emphasise: <code>i</code> is a variable that increases automatically.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> Show how Dancheong repeats the exact same motif with mechanical precision — the same lotus shape appears hundreds of times on a single ceiling. The for loop is the painter's stamp.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:48</div>
+          <div class="tl-content"><strong>Practice:</strong> Paste Lesson 4. Change <code>cellSize</code> from 60 to 40 and 80. Students explain why the number of circles changes. Then challenge: make inner dot size vary with <code>(i+j)</code>.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:48 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to add rotation to each cell. They find the <code>push()</code>, <code>rotate()</code>, <code>pop()</code> pattern in the output and ask Claude to explain each line.</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What does <code>%</code> (modulo) mean?"</div>
+        <div class="qa-a">The remainder after division. 7 % 4 = 3. 8 % 4 = 0. 9 % 4 = 1. When you use <code>i % 4</code>, the result cycles through 0, 1, 2, 3, 0, 1, 2, 3 — perfect for cycling through a list of 4 colours.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Why do we need TWO loops (nested)? Can't we do it with one?"</div>
+        <div class="qa-a">One loop gives you a single row. Two loops give you rows × columns — a grid. The outer loop tracks which row (<code>i</code>), the inner loop tracks which column (<code>j</code>). Together they cover every cell.</div>
+      </div>
+      <div class="tip-box"><strong>Teacher tip:</strong> Trace through the nested loop live on the projector. Show i=0, j=0 → first cell. i=0, j=1 → second cell. Ask: "Where does i=1, j=0 draw?" Spatial reasoning is the hardest part of nested loops.</div>
+    `)}
+  `,
+
+  phase2: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Phase 2 · Lessons 5–8</div>
+      <h2>Hangeul Characters</h2>
+      <p>Students apply and deepen all Phase 1 concepts while learning functions, arrays, objects, and integration. By Lesson 8, students combine all eight concepts into a single interactive app — a significant milestone.</p>
+    </div>
+
+    ${lessonCard(5,'#6B3AAA','Functions','Phase 2 · Hangeul','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Write <code>ellipse(200,200,100,100)</code> five times on the board. Ask: "What if I need 50 circles at different positions?" Then show how one function call replaces all of them.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> <code>function name(param1, param2) { }</code> — define the recipe once. Parameters are the inputs. Show how changing arguments produces different results from the same function.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> Introduce Hangeul's geometric design principle. King Sejong designed each consonant to mirror the shape of the mouth and tongue. Show the consonant ㄱ (G) — two lines at a right angle — and explain how to draw it with two <code>line()</code> calls.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Paste Lesson 5. Challenge: copy <code>drawGiyeok()</code>, rename to <code>drawNieun()</code>, and modify to draw ㄴ (L-shape). Key insight: same function structure, different lines inside.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to create <code>drawDigeut()</code> for ㄷ. They compare Claude's approach to their own drawNieun function.</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What is the difference between a parameter and an argument?"</div>
+        <div class="qa-a">A <em>parameter</em> is the name in the function definition: <code>function draw(x, y)</code>. An <em>argument</em> is the value you pass when calling: <code>draw(100, 200)</code>. Same concept, different context. For this course, the distinction doesn't matter — but knowing the terminology is useful.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Can a function call another function?"</div>
+        <div class="qa-a">Yes, always. In fact p5.js's <code>draw()</code> function calls <code>ellipse()</code> — which is also a function. All functions can call other functions. This is the basis of modular code.</div>
+      </div>
+    `)}
+
+    ${lessonCard(6,'#8B4400','Arrays','Phase 2 · Hangeul','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Ask: "Hangeul has 14 consonants. Without an array, how many variables would we need?" 14 variables. "What if we need to change all of them?" 14 edits. Arrays solve this.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> <code>let list = ['a', 'b', 'c']</code>. Index starts at 0. <code>list[0]</code> = 'a'. <code>list.length</code> = 3. Combine with a for loop: process every item without repeating code.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> Introduce the 14 Korean consonants as a fixed, ordered set — like an array. Each has a position, a sound, and a romanization. A parallel array stores the romanizations at the same index.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Paste Lesson 6. Challenge: change <code>cols</code> to 7. Ask: "Why does the layout change?" Students should explain how index calculation (<code>i % cols</code>, <code>Math.floor(i/cols)</code>) produces grid positions.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Prompt Claude to add hover interaction — when mouse hovers over a consonant, it enlarges. Students find the <code>dist()</code> function in the output and ask Claude to explain it.</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"Why does array index start at 0, not 1?"</div>
+        <div class="qa-a">Historical reason from how computers store memory. The index is an offset from the start — 0 means "the first item, 0 steps from the beginning." Memorise: first item is always index 0, last item is always index <code>array.length - 1</code>.</div>
+      </div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"What does <code>Math.floor()</code> do?"</div>
+        <div class="qa-a">It rounds down to the nearest whole number. <code>Math.floor(2.9)</code> = 2. We use it to convert a decimal grid position into a whole row number.</div>
+      </div>
+    `)}
+
+    ${lessonCard(7,'#C0392B','Objects','Phase 2 · Hangeul','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> Show four parallel arrays for a song: <code>titles[]</code>, <code>artists[]</code>, <code>years[]</code>, <code>bpms[]</code>. Ask: "What if the arrays get out of sync?" This is fragile. Objects keep everything together.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:08 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> <code>let song = { title: 'Dynamite', bpm: 114 }</code>. Access with dot notation: <code>song.title</code>, <code>song.bpm</code>. An array of objects is the core data structure of almost every real application.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> K-POP songs have many properties — title, artist, year, BPM, mood, colour palette. An object is the natural way to model a song. Students build a mini K-POP library with 4 songs.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Practice:</strong> Paste Lesson 7. Challenge: add a <code>plays</code> property and filter to only show songs where <code>song.bpm > 120</code>. This combines objects, arrays, loops, and conditionals.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to add a hover tooltip showing all song properties. They find how Claude accesses each property with dot notation.</div>
+        </div>
+      </div>
+
+      <div class="sec-divider">Expected Student Questions</div>
+      <div class="qa-block">
+        <div class="qa-q"><span class="qa-q-icon">❓</span>"When should I use an array and when should I use an object?"</div>
+        <div class="qa-a">Use an <em>array</em> when you have an ordered list of similar things (14 consonants, 5 colours). Use an <em>object</em> when one thing has multiple different properties (a song has a title, artist, year, bpm). Combine them: an <em>array of objects</em> is a list of things that each have multiple properties.</div>
+      </div>
+    `)}
+
+    ${lessonCard(8,'#1A4A7A','Integration — All Concepts','Phase 2 · Hangeul','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:08</div>
+          <div class="tl-content"><strong>Hook:</strong> List all eight concepts on the board. Ask students to predict which ones are in the flashcard app. All eight — today they see how they fit together.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:08 – 0:38</div>
+          <div class="tl-content"><strong>Guided build:</strong> Walk through the Lesson 8 code section by section. Pause at each concept and ask: "Which concept is this?" Students annotate their own copy of the code.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:38 – 0:52</div>
+          <div class="tl-content"><strong>Challenge:</strong> Students add two new Korean words to the <code>words</code> array. Then add a new property (e.g. <code>category: "nature"</code>) to each word object. Test that the app still works.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:52 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students ask Claude to review their modified code and identify all eight concepts. Compare Claude's analysis to the list on the board.</div>
+        </div>
+      </div>
+
+      <div class="tip-box"><strong>Milestone moment:</strong> Lesson 8 is the course's midpoint. Students who complete the integration challenge have demonstrated genuine understanding of all foundational concepts. Celebrate this before moving to Phase 3.</div>
+      <div class="warn-box"><strong>Watch for:</strong> Students who paste the whole example code without reading it. Ask them to close the app and explain <em>one</em> function from memory before continuing to Phase 3.</div>
+    `)}
+  `,
+
+  phase3: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Phase 3 · Lessons 9–12</div>
+      <h2>K-POP + Vibe Coding</h2>
+      <p>Students take ownership of the AI coding workflow, debug intentional errors, build a free project, and present at Demo Day. Your role shifts from instructor to coach — guide students to find their own answers rather than providing them directly.</p>
+    </div>
+
+    ${lessonCard(9,'#1A6B3A','Vibe Coding Workflow','Phase 3 · K-POP + AI','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:10</div>
+          <div class="tl-content"><strong>Demo:</strong> Run the Lesson 9 AI prompt live on the projector. Show the full result. Ask: "Without running it, what do you expect this code to do?" Students predict, then run.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:10 – 0:20</div>
+          <div class="tl-content"><strong>Concept:</strong> Walk through the Vibe Coding Cycle: Prompt → Run → Read → Modify → Repeat. Emphasise: the cycle never ends. Every professional programmer uses this loop.</div>
+        </div>
+        <div class="tl-item culture">
+          <div class="tl-time">0:20 – 0:28</div>
+          <div class="tl-content"><strong>Culture:</strong> K-POP visual production — discuss how BTS, BLACKPINK, NewJeans use colour and motion in their visuals. Students are building a simplified version of a music visualizer.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:28 – 0:50</div>
+          <div class="tl-content"><strong>Modify cycle:</strong> Students change <code>config.speed</code> from 0.05 to 0.1. Observe. Change rings from 6 to 12. Observe. Each change is a hypothesis — predict before running.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:50 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students prompt Claude to add a new feature (their choice). Walk the room — observe what prompts students write. This reveals their understanding level.</div>
+        </div>
+      </div>
+      <div class="tip-box"><strong>Teacher tip:</strong> At the AI step, ask students to share their prompts with the class. Compare: whose prompt was most specific? What result did it produce? This teaches prompt quality without lecturing about it.</div>
+    `)}
+
+    ${lessonCard(10,'#C89B10','AI Debugging','Phase 3 · K-POP + AI','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:10</div>
+          <div class="tl-content"><strong>Hook:</strong> Open the Lesson 10 buggy code. Run it. Nothing draws. Ask: "How do we find what's wrong?" Open the console (F12 on projector). Read the error out loud with the class.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">0:10 – 0:25</div>
+          <div class="tl-content"><strong>Concept:</strong> Read each error type together. Emphasise: the error message tells you EXACTLY what is wrong and on which line. Show how to click the file:line link in the console.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:25 – 0:48</div>
+          <div class="tl-content"><strong>Bug hunt:</strong> Students find all three bugs using only the console. Do NOT tell them the answers. Ask: "What does the error say? Which line? What could a typo look like there?"</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:48 – 1:00</div>
+          <div class="tl-content"><em>AI step:</em> Students use Debug Template A — paste error + code into Claude. Compare Claude's explanation to what they found themselves. Ask: "Did Claude explain the bug better or worse than you?"</div>
+        </div>
+      </div>
+      <div class="warn-box"><strong>Do not fix bugs for students.</strong> Ask: "What does the error say?" → "Which line is that?" → "What could cause a ReferenceError on that line?" Let them arrive at the answer. The struggle is the learning.</div>
+    `)}
+
+    ${lessonCard(11,'#6B3AAA','Free Project','Phase 3 · K-POP + AI','60 min',`
+      <div class="sec-divider">Lesson Timeline</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:12</div>
+          <div class="tl-content"><strong>Planning:</strong> Students choose a project (A/B/C/D) and write their plan on paper. Teacher checks each plan: "Does it use an array? A function? What is the interaction?" Do not start coding until the plan is approved.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:12 – 0:35</div>
+          <div class="tl-content"><strong>Build — core feature:</strong> Students build only the core feature. No AI yet. Walk the room constantly. Key question: "Can you explain line 10 to me?" If not, they are pasting without reading.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:35 – 0:45</div>
+          <div class="tl-content"><em>AI step:</em> Students use the Feature Request Template for one specific stuck thing. They must read and explain every line Claude adds before continuing.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:45 – 1:00</div>
+          <div class="tl-content"><strong>Polish:</strong> Add comments, refine colours, clean up. Remind students: they must explain every line at Demo Day tomorrow.</div>
+        </div>
+      </div>
+      <div class="tip-box"><strong>Project options quick reference:</strong> A) Dancheong Pattern Generator — easiest, good for students who struggled with loops. B) Korean Name Card — good for students who enjoyed arrays. C) K-POP Visualizer — best for students who enjoyed the sin() animation. D) Obangsaek Explorer — good for students who enjoyed objects.</div>
+    `)}
+
+    ${lessonCard(12,'#8B4400','Demo Day + Retrospective','Phase 3 · K-POP + AI','60 min',`
+      <div class="sec-divider">Demo Day Structure</div>
+      <div class="timeline">
+        <div class="tl-item highlight">
+          <div class="tl-time">0:00 – 0:05</div>
+          <div class="tl-content"><strong>Setup:</strong> Students open their projects. Teacher opens a shared screen or students take turns at the projector. Each student has exactly 2 minutes.</div>
+        </div>
+        <div class="tl-item practice">
+          <div class="tl-time">0:05 – 0:40</div>
+          <div class="tl-content"><strong>Presentations:</strong> Each student: 1 min demo + 1 min code explanation (one variable, one function, one loop). Audience asks one question each. Teacher notes strong explanations to highlight.</div>
+        </div>
+        <div class="tl-item ai-step">
+          <div class="tl-time">0:40 – 0:55</div>
+          <div class="tl-content"><em>Retrospective:</em> Students answer four questions in the curriculum app: AI saved time on ___, AI got wrong ___, I understood ___ better, My next project ___. Discuss as a group — what did the class agree on?</div>
+        </div>
+        <div class="tl-item highlight">
+          <div class="tl-time">0:55 – 1:00</div>
+          <div class="tl-content"><strong>Close:</strong> Acknowledge the journey. Students started with <code>ellipse()</code> and ended with interactive apps. Remind them: the concepts they learned work in Python, JavaScript, Java — the syntax changes, the thinking doesn't.</div>
+        </div>
+      </div>
+      <div class="tip-box"><strong>Assessment:</strong> The Demo Day presentation IS the assessment. Can the student demo their project AND explain three specific lines of code in plain English? If yes, they have achieved the course objective.</div>
+    `)}
+  `,
+
+  vibe: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Vibe Coding</div>
+      <h2>Teaching Vibe Coding Effectively</h2>
+      <p>Vibe coding (AI-assisted programming) is a core skill in this curriculum, not a shortcut. This section gives you practical strategies for teaching students to use AI as a learning tool rather than a replacement for thinking.</p>
+    </div>
+
+    <div class="sec-divider">The Vibe Coding Principle</div>
+    <div class="info-grid ig2">
+      <div class="info-card" style="border-top:3px solid var(--red)">
+        <div class="info-card-label" style="color:var(--red)">What Vibe Coding IS</div>
+        <p style="font-size:.77rem">Using AI to generate code you then read, understand, and modify. The student is the designer. AI is the assistant. The student drives every decision about what to build and why.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--green)">
+        <div class="info-card-label" style="color:var(--green)">What Vibe Coding IS NOT</div>
+        <p style="font-size:.77rem">Asking AI to write the whole project and pasting it without reading. This produces working code the student cannot explain — and guarantees failure at Demo Day.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">How to Run the AI Step in Each Lesson</div>
+
+    <div class="script-block">
+      <div class="script-label">Teacher Script — Introducing the AI Step (use in Lesson 1)</div>
+      <div class="script-text">"We are going to copy this prompt into Claude. Before we run the code, I want you to <strong>read every line</strong>. Find one variable, one function call, and one comment. You have 3 minutes. Then we will run it together."</div>
+    </div>
+
+    <div class="script-block">
+      <div class="script-label">Teacher Script — After AI Gives Code</div>
+      <div class="script-text">"Good. Now <strong>change one number</strong> in the AI code. Any number. Predict what will happen. Then run it. Were you right? This is how you build intuition — not from reading, but from predicting and testing."</div>
+    </div>
+
+    <div class="script-block">
+      <div class="script-label">Teacher Script — When a Student Asks AI to Fix Everything</div>
+      <div class="script-text">"Before we ask Claude to fix this — <strong>what does the error message say?</strong> Can you find that line in your code? What do you think is wrong? Tell me your hypothesis first. Then we'll ask Claude."</div>
+    </div>
+
+    <div class="sec-divider">Signs Students Are Using AI Well</div>
+    <ul class="check-list">
+      <li>They read the AI output before pasting it</li>
+      <li>They can point to a specific line and explain what it does</li>
+      <li>They ask AI for one specific thing at a time</li>
+      <li>They modify the AI output before calling it done</li>
+      <li>They use AI to understand an error, not just to fix it</li>
+    </ul>
+
+    <div class="sec-divider">Signs Students Are Using AI Poorly</div>
+    <ul class="check-list">
+      <li>They ask AI to write the whole project in one prompt</li>
+      <li>They paste AI code without reading it first</li>
+      <li>They ask AI to "fix" without knowing what is broken</li>
+      <li>Their code works but they cannot explain any of it</li>
+      <li>They ask AI the same question three times in a row</li>
+    </ul>
+
+    <div class="warn-box">
+      <strong>The Demo Day test:</strong> If a student cannot explain their code to you in plain English, they used AI as a shortcut, not a tool. This is the only meaningful assessment of whether vibe coding was learned correctly.
+    </div>
+
+    <div class="sec-divider">Prompt Quality — What to Look For</div>
+    <div class="info-grid ig2">
+      <div class="info-card" style="border-left:3px solid var(--red)">
+        <div class="info-card-label" style="color:var(--red)">Weak Student Prompts</div>
+        <p style="font-size:.77rem">"make it better" · "fix this" · "add colours" · "make circles" — These tell you the student hasn't thought about what they want. Ask: "What specifically should be better? What colour? Where should the circles be?"</p>
+      </div>
+      <div class="info-card" style="border-left:3px solid var(--green)">
+        <div class="info-card-label" style="color:var(--green)">Strong Student Prompts</div>
+        <p style="font-size:.77rem">Names the library (p5.js) · describes the visual precisely · includes hex colours · specifies the interaction · pastes existing code · limits scope to one feature. These students are thinking like programmers.</p>
+      </div>
+    </div>
+  `,
+
+  assessment: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · Assessment</div>
+      <h2>Assessment Guide</h2>
+      <p>This curriculum uses performance-based assessment. There are no written tests. Students demonstrate understanding by building, explaining, and reflecting — the same way professional developers are assessed.</p>
+    </div>
+
+    <div class="sec-divider">Assessment Philosophy</div>
+    <div class="tip-box">
+      <strong>The core question:</strong> Can the student explain their own code in plain English? If yes, they understand it. If not, they pasted without reading. This single criterion captures everything this course aims to develop.
+    </div>
+
+    <div class="sec-divider">Formative Assessment — Every Lesson</div>
+    <div class="info-grid ig3">
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--blue)">Predict & Test</div>
+        <p style="font-size:.77rem">Before each run, ask students to predict the output. Right or wrong doesn't matter — the act of predicting shows whether they are reading the code or just running it.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--green)">Explain to a Partner</div>
+        <p style="font-size:.77rem">After each AI step, students explain two lines of AI code to their neighbour. If they can't, they haven't read it. This takes 2 minutes and reveals understanding instantly.</p>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label" style="color:var(--yellow)">Spot the Concept</div>
+        <p style="font-size:.77rem">Point to a random line in the code and ask: "Which concept from today's lesson does this use?" Students should be able to name the concept within a few seconds.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">Summative Assessment — Demo Day (Lesson 12)</div>
+    <div class="info-grid ig2">
+      <div class="info-card" style="border-top:3px solid var(--red)">
+        <div class="info-card-label" style="color:var(--red)">Part 1 · Demo (1 minute)</div>
+        <p style="font-size:.77rem">Student runs their project and demonstrates at least one interaction (click, key press, hover). The project must show a Korean cultural element and work without errors.</p>
+      </div>
+      <div class="info-card" style="border-top:3px solid var(--blue)">
+        <div class="info-card-label" style="color:var(--blue)">Part 2 · Explanation (1 minute)</div>
+        <p style="font-size:.77rem">Student explains: one variable (what it stores), one function they wrote (what it does), one loop or condition (why it is there). Plain English, no reading from notes.</p>
+      </div>
+    </div>
+
+    <div class="sec-divider">Demo Day Rubric</div>
+    <div style="background:var(--paper);border:1.5px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:1rem">
+      <table style="width:100%;border-collapse:collapse;font-size:.77rem">
+        <thead>
+          <tr style="background:var(--ink);color:var(--paper)">
+            <th style="padding:.55rem .85rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase">Criterion</th>
+            <th style="padding:.55rem .85rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em">Excellent</th>
+            <th style="padding:.55rem .85rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em">Good</th>
+            <th style="padding:.55rem .85rem;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em">Developing</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rubricRow('Project Works','Runs without errors, clear interaction','Runs with minor visual issues','Crashes or no interaction')}
+          ${rubricRow('Korean Culture','Strong, specific cultural connection','General connection present','Minimal or no cultural element')}
+          ${rubricRow('Code Explanation','Explains 3+ lines confidently','Explains 1–2 lines with prompting','Cannot explain own code')}
+          ${rubricRow('Concept Use','Uses 5+ of the 8 concepts','Uses 3–4 concepts clearly','Uses 1–2 concepts')}
+          ${rubricRow('AI as Tool','Clearly used AI for specific parts and can say which','Used AI but unsure what it changed','AI wrote everything, student can\'t explain any of it')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-divider">Retrospective Assessment (Lesson 12)</div>
+    <p style="font-size:.8rem;color:var(--ink2);line-height:1.6;margin-bottom:.85rem">Four reflective questions reveal meta-cognitive development — whether students can think about their own thinking and learning:</p>
+    <ul class="check-list">
+      <li><strong>AI saved me time on:</strong> Shows awareness of AI's strengths</li>
+      <li><strong>AI got this wrong:</strong> Shows critical evaluation of AI output</li>
+      <li><strong>I understood ___ better because of AI code:</strong> Shows transfer of learning</li>
+      <li><strong>My next project will be:</strong> Shows independent motivation beyond the curriculum</li>
+    </ul>
+  `,
+
+  faq: `
+    <div class="sec-hero">
+      <div class="sec-hero-tag">Teacher Guide · FAQ & Troubleshooting</div>
+      <h2>Common Problems & Solutions</h2>
+      <p>This section covers the most frequently encountered issues — both technical and pedagogical — across all 12 lessons.</p>
+    </div>
+
+    <div class="sec-divider">Technical Issues</div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🔧</span>p5.js Web Editor won't load or shows a blank page.</div>
+      <div class="qa-a">Hard refresh: <code>Ctrl+Shift+R</code> (Win) / <code>Cmd+Shift+R</code> (Mac). If that fails, clear Chrome cache. Check that <strong>editor.p5js.org</strong> is not blocked by a school firewall. As a fallback, students can code at <strong>openprocessing.org</strong> — it also supports p5.js.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🔧</span>Claude.ai is unavailable or students have hit the daily limit.</div>
+      <div class="qa-a">Use ChatGPT (<code>chat.openai.com</code>) as a drop-in alternative — it understands p5.js equally well. Have the ChatGPT URL ready as a backup. Both tools accept identical prompts from the curriculum app.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🔧</span>Korean characters (한글) display as boxes or question marks in the p5.js canvas.</div>
+      <div class="qa-a">Korean characters require a Korean-compatible font. Add this to your sketch: <code>let myFont; function preload() { myFont = loadFont('https://fonts.gstatic.com/ea/notoserifkr/v2/NotoSerifKR-Regular.otf'); }</code> and then <code>textFont(myFont)</code> in setup(). Claude.ai will add this automatically if you include "use Noto Serif KR font" in your prompt.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🔧</span>The p5.js canvas preview freezes or becomes very slow.</div>
+      <div class="qa-a">Usually caused by an infinite loop or a very large canvas. Check that <code>draw()</code> has a <code>background()</code> call at the top (missing it causes accumulation that slows rendering). Also check that all for loop conditions will eventually become false.</div>
+    </div>
+
+    <div class="sec-divider">Pedagogical Issues</div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>A student is much faster than the others and finishes everything early.</div>
+      <div class="qa-a">Extension challenges: (1) Can they remove all the AI-generated code and rewrite it themselves from memory? (2) Can they combine two lessons' sketches into one? (3) Can they teach the concept to the slowest student? Peer teaching benefits both parties.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>A student is copying code without understanding it and panics at Demo Day.</div>
+      <div class="qa-a">Intervene at Lesson 10. Ask the student to close the curriculum app and explain what <code>let i = 0</code> does. If they can't, have them restart from Lesson 4's challenge with no copy-paste allowed. Thirty minutes of genuine struggle is worth more than three hours of passive copying.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>Students are writing very vague AI prompts and getting confused by the output.</div>
+      <div class="qa-a">Run a 5-minute "prompt quality" exercise: show three prompts side by side on the projector (weak, medium, strong). Ask students to rank them and explain why. Then have each student rewrite their weakest prompt using the four-ingredient structure (library, visual, colour, interaction).</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>Students are frustrated that AI code sometimes doesn't work or gives wrong results.</div>
+      <div class="qa-a">This is the best teachable moment in the course. AI errors teach critical reading — you cannot trust any code you haven't read. Say: "AI made a mistake. This happens to professional developers too. How do we find the bug?" Then demonstrate the console + debugger workflow.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>The class is moving too slowly and we won't finish all 12 lessons.</div>
+      <div class="qa-a">Combine Lessons 7+8 into a single session (both cover Phase 2 and can be merged). Skip the AI step for two lessons and assign it as homework instead. Lessons 11+12 (Free Project + Demo Day) can be run back-to-back if needed.</div>
+    </div>
+
+    <div class="qa-block">
+      <div class="qa-q"><span class="qa-q-icon">🎓</span>Students are asking "why do we need to learn this if AI can write it for us?"</div>
+      <div class="qa-a">Excellent question — take it seriously. Answer: "AI can write it, but AI can't tell you if it's right, if it's doing what you want, or where the bug is. The programmer who can read AI code is worth more than the programmer who can't. You're learning to be that person."</div>
+    </div>
+  `,
+};
+
+// ════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════
+function lessonCard(num, color, title, meta, time, bodyHtml) {
+  return `
+    <div class="lesson-card">
+      <div class="lc-header" onclick="toggleCard(this)">
+        <div class="lc-num" style="background:${color}">L${num}</div>
+        <div class="lc-title-wrap">
+          <div class="lc-title">${title}</div>
+          <div class="lc-meta">${meta} · ${time}</div>
+        </div>
+        <div class="lc-toggle">▼</div>
+      </div>
+      <div class="lc-body">${bodyHtml}</div>
+    </div>`;
+}
+
+function rubricRow(criterion, excellent, good, developing) {
+  return `<tr>
+    <td style="padding:.45rem .85rem;border-bottom:1px solid #EEE8DC;font-weight:600;color:var(--ink)">${criterion}</td>
+    <td style="padding:.45rem .85rem;border-bottom:1px solid #EEE8DC;color:#1A6B3A;text-align:center;font-size:.73rem">${excellent}</td>
+    <td style="padding:.45rem .85rem;border-bottom:1px solid #EEE8DC;color:#1A4A7A;text-align:center;font-size:.73rem">${good}</td>
+    <td style="padding:.45rem .85rem;border-bottom:1px solid #EEE8DC;color:#8B4400;text-align:center;font-size:.73rem">${developing}</td>
+  </tr>`;
+}
+
+// ════════════════════════════════════════════════
+//  RENDER TEACHER GUIDE
+// ════════════════════════════════════════════════
+let currentSection = 'overview';
+
+function buildTgSidebar() {
+  let html = '';
+  SECTIONS.forEach(s => {
+    html += `<div class="tg-sb-section">${s.id === 'overview' ? 'Guide' : ''}</div>
+    <button class="tg-sb-btn ${s.id===currentSection?'active':''}" onclick="showSection('${s.id}')">
+      <span class="tg-sb-num">${s.icon}</span>
+      <span>${s.label}</span>
+    </button>`;
+  });
+  document.getElementById('tg-sb').innerHTML = html;
+}
+
+function showSection(id) {
+  currentSection = id;
+  buildTgSidebar();
+  document.getElementById('tg-content').innerHTML = CONTENT[id] || '<p>Coming soon.</p>';
+  window.scrollTo(0, 0);
+}
+
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+
+// ════════════════════════════════════════════════
+//  PANEL SWITCHER
+// ════════════════════════════════════════════════
+function showPanel(which, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.hnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + which).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+buildTgSidebar();
+showSection('overview');
+</script>
+</body>
+</html>
